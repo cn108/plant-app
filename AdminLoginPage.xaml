@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinalYearProject.AdminLoginPage"
+             Title="Admin Login">
+    <ContentPage.Resources>
+        <!-- Styles for Admin Login -->
+        <Style x:Key="HeaderLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="36" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="EntryStyle" TargetType="Entry">
+            <Setter Property="BackgroundColor" Value="White" />
+            <Setter Property="TextColor" Value="Black" />
+            <Setter Property="PlaceholderColor" Value="Gray" />
+            <Setter Property="Margin" Value="0,10" />
+            <Setter Property="HeightRequest" Value="50" />
+            <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+        </Style>
+
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="#4CAF50" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="CornerRadius" Value="25" />
+            <Setter Property="HeightRequest" Value="50" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="Margin" Value="0,20" />
+        </Style>
+
+    </ContentPage.Resources>
+
+    <Grid BackgroundColor="#1B5E20">
+        <StackLayout Padding="30" Spacing="20" VerticalOptions="Center">
+            <!-- Admin Login Header -->
+            <Label Text="Admin Login" Style="{StaticResource HeaderLabelStyle}" />
+
+            <!-- Username and Password Entries -->
+            <Entry x:Name="UsernameEntry" Placeholder="Username" Style="{StaticResource EntryStyle}" />
+            <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" Style="{StaticResource EntryStyle}" />
+
+            <!-- Login Button -->
+            <Button Text="Login" Clicked="OnLoginButtonClicked" Style="{StaticResource ButtonStyle}" />
+        </StackLayout>
+    </Grid>
+</ContentPage>

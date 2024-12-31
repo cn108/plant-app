@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinalYearProject.FruitDetailPage"
+             Title="Fruit Details">
+
+    <StackLayout Padding="10">
+        <!-- Display the fruit's details -->
+        <Label Text="Fruit Details" FontAttributes="Bold" FontSize="Medium" HorizontalOptions="Center" />
+
+        <Label Text="Name:" FontAttributes="Bold" />
+        <Label Text="{Binding PlantName}" />
+
+        <Label Text="Season:" FontAttributes="Bold" />
+        <Label Text="{Binding Season}" />
+
+        <Label Text="Water Requirements (Liters):" FontAttributes="Bold" />
+        <Label Text="{Binding WaterPerLiters}" />
+    </StackLayout>
+
+</ContentPage>

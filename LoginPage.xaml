@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinalYearProject.LoginPage"
+             Title="LoginPage">
+    
+    <ContentPage.Resources>
+        <Style x:Key="EntryStyle" TargetType="Entry">
+            <Setter Property="Margin" Value="0,10,0,0" />
+            <Setter Property="HeightRequest" Value="40" />
+            <Setter Property="FontSize" Value="Medium" />
+        </Style>
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="HeightRequest" Value="50" />
+            <Setter Property="CornerRadius" Value="25" />
+            <Setter Property="FontSize" Value="Medium" />
+            <Setter Property="Margin" Value="0,20,0,0" />
+        </Style>
+    </ContentPage.Resources>
+
+    <!-- Add a gradient or image background -->
+    <ContentPage.Background>
+        <LinearGradientBrush EndPoint="0,1">
+            <GradientStop Color="Green" Offset="0.1" />
+            <GradientStop Color="#6A0" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid Padding="20" RowSpacing="15" ColumnSpacing="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Text="Login"
+               FontSize="36"
+               HorizontalOptions="Center"
+               Grid.Row="0" />
+
+        <Entry x:Name="EmailEntry" 
+               Placeholder="Email" 
+               Keyboard="Email"
+               PlaceholderColor="#A5D6A7"
+               BackgroundColor="White" 
+               TextColor="#1B5E20"
+               Style="{StaticResource EntryStyle}"
+               Grid.Row="1" />
+
+        <Entry x:Name="PasswordEntry" 
+               Placeholder="Password" 
+               IsPassword="True"
+               PlaceholderColor="#A5D6A7"
+               BackgroundColor="White" 
+               TextColor="#1B5E20"
+               Style="{StaticResource EntryStyle}"
+               Grid.Row="2" />
+
+        <Button Text="Login" 
+                Clicked="OnLoginClicked" 
+                BackgroundColor="#388E3C" 
+                TextColor="White"
+                Style="{StaticResource ButtonStyle}"
+                Grid.Row="3" />
+
+        <Button Text="Register"
+                Clicked="OnRegisterClicked"
+                BackgroundColor="AliceBlue"
+                TextColor="Black"
+                Style="{StaticResource ButtonStyle}"
+                Grid.Row="4" />
+    </Grid>
+</ContentPage>

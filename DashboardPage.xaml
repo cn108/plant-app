@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:FinalYearProject"
+             x:Class="FinalYearProject.DashboardPage"
+             
+             BackgroundColor="#E8F5E9">
+    <ContentPage.BindingContext>
+        <viewModels:DashboardViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.Resources>
+        <Style x:Key="HeaderLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="32" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+        </Style>
+        <Style x:Key="SectionLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+        </Style>
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="#4CAF50" />
+            <!-- Green background -->
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Margin" Value="10,0" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" Padding="10" VerticalOptions="Fill">
+
+            <!-- Header -->
+            <Frame BackgroundColor="#4CAF50" Padding="24" CornerRadius="0">
+                <!-- Green background -->
+                <Label Text="Dashboard" TextColor="#1B5E20" Style="{StaticResource HeaderLabelStyle} " />
+            </Frame>
+
+            <!-- Search Bar with Autocomplete -->
+            <SearchBar Placeholder="Search for plants" 
+                       Text="{Binding SearchQuery}" 
+                       TextColor="#1B5E20"
+                       SearchCommand="{Binding SearchCommand}" />
+
+            <!-- CollectionView to display filtered plants -->
+            <CollectionView ItemsSource="{Binding FilteredPlants}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <TextCell Text="{Binding PlantName}" Detail="{Binding Season}" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            
+            <!-- Icons for Fruits and Vegetables -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
+                <ImageButton Source="fruits_icon.png" Command="{Binding NavigateToFruitsCommand}" />
+                <ImageButton Source="vegetables_icon.png" Command="{Binding NavigateToVegetablesCommand}" />
+            </HorizontalStackLayout>
+
+           
+
+            <!-- Care Timeline -->
+            <Label Text="Care Timeline" TextColor="#1B5E20" FontSize="20" />
+            <CollectionView ItemsSource="{Binding CareTasks}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout>
+                            <Label TextColor="#1B5E20" Text="{Binding PlantName}" />
+                            <Label TextColor="#1B5E20" Text="{Binding TaskDescription}" />
+                            <Label TextColor="#1B5E20" Text="{Binding TaskDate, StringFormat='{0:dd/MM/yyyy}'}" />
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Add a section for reminders -->
+            <Label Text="Reminders" TextColor="#1B5E20" Style="{StaticResource SectionLabelStyle}" />
+            <CollectionView ItemsSource="{Binding Reminders}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout>
+                            <Label TextColor="#1B5E20" Text="{Binding TaskDescription}" />
+                            <Button TextColor="#1B5E20" Text="Mark as Done" Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:DashboardViewModel}}, Path=MarkAsDoneCommand}" CommandParameter="{Binding .}" Style="{StaticResource ButtonStyle}"/>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+
+
+          
+
+            <!-- Add Plant Button -->
+            <Button Text="Add Plant" TextColor="#1B5E20" Command="{Binding AddPlantCommand}" Style="{StaticResource ButtonStyle}" />
+
+            <!-- Weather Information -->
+            <Label Text="{Binding Temperature, StringFormat='Temperature: {0}°C'}" TextColor="#1B5E20" FontSize="24" HorizontalOptions="Center" />
+            <ActivityIndicator IsRunning="{Binding IsFetchingWeather}" IsVisible="{Binding IsFetchingWeather}" />
+            <Button Text="View Detailed Weather" Command="{Binding NavigateToWeatherCommand}" TextColor="#1B5E20" Style="{StaticResource ButtonStyle}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

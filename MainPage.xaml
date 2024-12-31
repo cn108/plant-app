@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinalYearProject.MainPage"
+             BackgroundColor="#E8F5E9">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" VerticalOptions="Fill">
+            <Frame BackgroundColor="#4CAF50" Padding="24" CornerRadius="0">
+                <Label Text="Scan a Plant"
+                       FontSize="32"
+                       TextColor="White"
+                       HorizontalOptions="Center" />
+            </Frame>
+
+            <Image Source="{Binding Photo}" Aspect="AspectFill" HeightRequest="450" WidthRequest="450" />
+
+            <ActivityIndicator IsRunning="{Binding IsRunning}" />
+
+            <Label Text="{Binding OutputLabel}"
+                   TextColor="Black"
+                   HorizontalTextAlignment="Center"
+                   HorizontalOptions="Fill" />
+
+            <HorizontalStackLayout Spacing="50" Padding="10,0" HorizontalOptions="Center">
+                <Button Command="{Binding PickPhotoCommand}" BackgroundColor="#388E3C" HorizontalOptions="Start" Text="Pick a picture" />
+                <Button Command="{Binding TakePhotoCommand}" BackgroundColor="#388E3C" HorizontalOptions="End" Text="Take a picture" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

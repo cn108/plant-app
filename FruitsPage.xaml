@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:FinalYearProject"
+             x:Class="FinalYearProject.FruitsPage"
+             Title="Fruits">
+
+    <ContentPage.BindingContext>
+        <local:FruitsPageViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.Background>
+        <LinearGradientBrush EndPoint="0,1">
+            <GradientStop Color="Green" Offset="0.1" />
+            <GradientStop Color="#6A0" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <StackLayout Padding="10">
+        <!-- Title for the page -->
+        <Label Text="Select a fruit to add to the care timeline" 
+               FontAttributes="Bold" 
+               FontSize="Medium" 
+               HorizontalOptions="Center" />
+
+        <!-- ListView displaying fruits -->
+        <ListView ItemsSource="{Binding FilteredPlants}" 
+                  SelectedItem="{Binding SelectedFruit}" 
+                  HasUnevenRows="True" 
+                  SeparatorVisibility="Default">
+
+            <!-- Define the layout for each item -->
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout Orientation="Horizontal" Padding="10">
+                            <!-- Fruit Image -->
+                            <Image Source="{Binding ImagePath}"
+                                   WidthRequest="50" 
+                                   HeightRequest="50" 
+                                   VerticalOptions="Center" />
+                            <!-- Fruit Name -->
+                            <Label Text="{Binding PlantName}" 
+                                   FontSize="Large" 
+                                   VerticalOptions="Center" 
+                                   Padding="10,0,0,0" />
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!-- Button to add the selected fruit to the care timeline -->
+        <Button Text="Add to Timeline" 
+                Command="{Binding AddToTimelineCommand}" 
+                IsEnabled="{Binding SelectedFruit, Converter={StaticResource NullToBooleanConverter}}" />
+    </StackLayout>
+</ContentPage>

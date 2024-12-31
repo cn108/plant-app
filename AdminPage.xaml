@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinalYearProject.AdminPage"
+             Title="Admin Page">
+
+    <ContentPage.Resources>
+        <!-- Admin Page Styles -->
+        <Style x:Key="AdminLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="TextColor" Value="Black" />
+            <Setter Property="HorizontalOptions" Value="StartAndExpand" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
+
+        <Style x:Key="DeleteButtonStyle" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="#E53935" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="HeightRequest" Value="40" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="WidthRequest" Value="80" />
+        </Style>
+
+        <Style x:Key="StackStyle" TargetType="StackLayout">
+            <Setter Property="Orientation" Value="Horizontal" />
+            <Setter Property="Spacing" Value="15" />
+            <Setter Property="Padding" Value="10" />
+        </Style>
+
+    </ContentPage.Resources>
+
+    <Grid BackgroundColor="#1B5E20">
+        <StackLayout Padding="20">
+            <!-- Header Label -->
+            <Label Text="Manage Users" 
+                   FontSize="28" 
+                   FontAttributes="Bold" 
+                   TextColor="White" 
+                   HorizontalOptions="Center" 
+                   Margin="0,20" />
+
+            <!-- Collection View for Users -->
+            <CollectionView x:Name="UserCollectionView" 
+                            SelectionMode="Single" 
+                            SelectionChanged="OnUserSelected" 
+                            
+                            Margin="0,20">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Style="{StaticResource StackStyle}">
+                            <!-- Username and Email -->
+                            <Label Text="{Binding Username}" Style="{StaticResource AdminLabelStyle}" />
+                            <Label Text="{Binding Email}" Style="{StaticResource AdminLabelStyle}" />
+
+                            <!-- Delete Button -->
+                            <Button Text="Delete" Clicked="OnDeleteUserClicked" Style="{StaticResource DeleteButtonStyle}" />
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinalYearProject.MessagesPage"
+             Title="Forum Messages">
+    <ContentPage.Resources>
+        <!-- Style for User Name -->
+        <Style x:Key="UserNameLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="#1B5E20" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+        </Style>
+
+        <!-- Style for Message Text -->
+        <Style x:Key="MessageTextLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="TextColor" Value="#4CAF50" />
+        </Style>
+
+        <!-- Style for Timestamp -->
+        <Style x:Key="TimestampLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextColor" Value="Gray" />
+        </Style>
+
+        <!-- Style for Category -->
+        <Style x:Key="CategoryLabelStyle" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="TextColor" Value="#388E3C" />
+        </Style>
+    </ContentPage.Resources>
+
+    <!-- Main Layout -->
+    <StackLayout Padding="20" BackgroundColor="#E8F5E9" Spacing="20">
+        <Frame BackgroundColor="#388E3C" Padding="20" CornerRadius="10">
+            <Label Text="Forum Messages" FontSize="28" TextColor="White" HorizontalOptions="Center" />
+        </Frame>
+
+        <!-- ListView for Messages -->
+        <ListView x:Name="MessagesListView"
+                  HasUnevenRows="True"
+                  SeparatorVisibility="None">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <Frame Padding="10" Margin="5" BackgroundColor="White" CornerRadius="10" BorderColor="#4CAF50">
+                            <StackLayout Orientation="Vertical" Spacing="5">
+                                <Label Text="{Binding UserName}" Style="{StaticResource UserNameLabelStyle}" />
+                                <Label Text="{Binding Category}" Style="{StaticResource CategoryLabelStyle}" />
+                                <Label Text="{Binding MessageText}" Style="{StaticResource MessageTextLabelStyle}" />
+                                <Label Text="{Binding CreatedAt, StringFormat='{0:dd MMM yyyy HH:mm}'}" Style="{StaticResource TimestampLabelStyle}" />
+                            </StackLayout>
+                        </Frame>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackLayout>
+</ContentPage>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:FinalYearProject"
+             x:Class="FinalYearProject.AddPlantPage"
+             Title="Add Plant"
+             BackgroundColor="#E8F5E9">
+    <!-- Light green background -->
+
+    <ContentPage.BindingContext>
+        <viewModels:AddPlantViewModel />
+    </ContentPage.BindingContext>
+
+    <StackLayout Padding="20" Spacing="20">
+        <!-- Header Label -->
+        <Label Text="Add a New Plant" 
+               FontSize="30" 
+               HorizontalOptions="Center" 
+               TextColor="#1B5E20" />
+        <!-- Dark green text -->
+
+        <!-- Plant Name Entry -->
+        <Entry Placeholder="Plant Name" 
+               Text="{Binding PlantName}" 
+               PlaceholderColor="#A5D6A7" 
+            BackgroundColor="White" 
+               TextColor="#1B5E20"
+
+            FontSize="18"
+               HeightRequest="50" />
+
+            <!-- Season Entry -->
+            <Entry Placeholder="Season" 
+               Text="{Binding Season}" 
+               PlaceholderColor="#A5D6A7"
+               BackgroundColor="White" 
+               TextColor="#1B5E20"
+               FontSize="18"
+               HeightRequest="50" />
+
+            <!-- Water (Liters) Entry -->
+            <Entry Placeholder="Water (Liters)" 
+               Text="{Binding WaterPerLiters}" 
+               Keyboard="Numeric"
+               PlaceholderColor="#A5D6A7"
+               BackgroundColor="White" 
+               TextColor="#1B5E20"
+               FontSize="18"
+               HeightRequest="50" />
+
+            <!-- Image Upload Button -->
+            <Button Text="Upload Image"
+                Command="{Binding UploadImageCommand}" 
+                BackgroundColor="#66BB6A" 
+                TextColor="White"
+                FontAttributes="Bold"
+                CornerRadius="10"
+                HeightRequest="50" />
+
+                <!-- Image Capture Button -->
+                <Button Text="Capture Image"
+                Command="{Binding CaptureImageCommand}" 
+                BackgroundColor="#388E3C" 
+                    TextColor="White"
+                FontAttributes="Bold"
+                CornerRadius="10"
+                HeightRequest="50" />
+
+                    <!-- Plant Image Preview -->
+                    <Image Source="{Binding PlantImage}" 
+               WidthRequest="150" 
+               HeightRequest="150" 
+               HorizontalOptions="Center" 
+               BackgroundColor="#F1F8E9" 
+                        Aspect="AspectFill" 
+               Margin="0,10" />
+
+                        <!-- Save Plant Button -->
+                        <Button Text="Add Plant" 
+                Command="{Binding SavePlantCommand}" 
+                BackgroundColor="#2E7D32" 
+                            TextColor="White"
+                FontAttributes="Bold"
+                CornerRadius="15"
+                HeightRequest="50" />
+    </StackLayout>
+</ContentPage>

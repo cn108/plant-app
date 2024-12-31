@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="FinalYearProject.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:FinalYearProject"
+    Shell.FlyoutBehavior="Flyout"
+    Title="FinalYearProject">
+
+    <Shell.ItemTemplate>
+        <DataTemplate>
+            <Grid x:Name="FlyoutItemLayout"
+                  HeightRequest="{OnPlatform 44, Android=50}"
+                  ColumnSpacing="{OnPlatform WinUI=0}"
+                  RowSpacing="{OnPlatform WinUI=0}">
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor"
+                                            Value="Transparent" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </VisualStateManager.VisualStateGroups>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{OnPlatform Android=54, iOS=50, WinUI=Auto}" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="FlyoutItemImage"
+                       Source="{Binding FlyoutIcon}"
+                       VerticalOptions="Center"
+                       HorizontalOptions="{OnPlatform Default=Center, WinUI=Start}"
+                       HeightRequest="{OnPlatform Android=24, iOS=22, WinUI=16}"
+                       WidthRequest="{OnPlatform Android=24, iOS=22, WinUI=16}" />
+
+                <Label x:Name="FlyoutItemLabel"
+                       Grid.Column="1"
+                       Text="{Binding Title}"
+                       FontSize="{OnPlatform Android=14, iOS=14}"
+                       FontAttributes="{OnPlatform iOS=Bold}"
+                       HorizontalOptions="{OnPlatform WinUI=Start}"
+                       VerticalTextAlignment="Center">
+                    <Label.TextColor>
+                        <OnPlatform x:TypeArguments="Color">
+                            <OnPlatform.Platforms>
+                                <On Platform="Android"
+                                    Value="{AppThemeBinding Light=Black, Dark=White}" />
+                            </OnPlatform.Platforms>
+                        </OnPlatform>
+                    </Label.TextColor>
+                </Label>
+            </Grid>
+        </DataTemplate>
+    </Shell.ItemTemplate>
+
+    <!-- Flyout for Navigation -->
+    <FlyoutItem Title="Dashboard" FlyoutDisplayOptions="AsSingleItem">
+        <ShellContent Title="Dashboard" ContentTemplate="{DataTemplate local:DashboardPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title ="Profile">
+        <ShellContent Title="Profile" ContentTemplate="{DataTemplate local:ProfilePage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Fruits">
+        <ShellContent Title="Fruits" ContentTemplate="{DataTemplate local:FruitsPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Vegetables">
+        <ShellContent Title="Vegetables" ContentTemplate="{DataTemplate local:VegetablesPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Weather">
+        <ShellContent Title="Weather" ContentTemplate="{DataTemplate local:WeatherPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Live Chat Support">
+        <ShellContent Title="Chat" ContentTemplate="{DataTemplate local:ChatPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Plant Care Tips">
+        <ShellContent Title="Plant Care Tips" ContentTemplate="{DataTemplate local:PlantCareTipsPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Crop Rotation Planner">
+        <ShellContent Title="Crop Rotation Planner" ContentTemplate="{DataTemplate local:CropRotationPlannerPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Forum">
+        <ShellContent Title="Forum" ContentTemplate="{DataTemplate local:ForumPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Add Plants">
+        <ShellContent Title="Add Plants" ContentTemplate="{DataTemplate local:AddPlantPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Scan Plants">
+        <ShellContent Title="Scan Plants" ContentTemplate="{DataTemplate local:MainPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="View Added Plants">
+        <ShellContent Title="View Added Plants" ContentTemplate="{DataTemplate local:ViewPlantsPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="Plant Care Timeline">
+        <ShellContent Title="Plant Care Timeline" ContentTemplate="{DataTemplate local:PlantCareTimelinePage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Logout">
+        <ShellContent Title="Logout" ContentTemplate="{DataTemplate local:LoginPage}" />
+    </FlyoutItem>
+</Shell>
