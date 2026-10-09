@@ -23,6 +23,24 @@ namespace FinalYearProject
                 return;
             }
 
+            var online = await ApiClient.LoginAsync(email, password);
+            if (online.Ok && online.Value is not null)
+            {
+                Preferences.Set("user_id", online.Value.UserId);
+                Preferences.Set("user_email", email);
+                Preferences.Set("user_username", online.Value.Username);
+                App.SetCurrentUser(online.Value.UserId, online.Value.Username);
+                Application.Current.MainPage = new AppShell();
+                return;
+            }
+
+            if (!online.Unreachable)
+            {
+                await DisplayAlert("Error", online.Error ?? "Invalid email or password.", "OK");
+                return;
+            }
+
+            // Server unreachable: fall back to the accounts stored on this device.
             var user = _plantAppDatabase.GetUserByEmail(email);
             if (user is null ||
                 string.IsNullOrEmpty(user.Password) ||

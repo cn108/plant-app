@@ -12,7 +12,7 @@
         </Style>
     </ContentPage.Resources>
 
-    <Grid BackgroundColor="#1B5E20">
+    <Grid BackgroundColor="{StaticResource Green1}">
         <StackLayout Padding="30" Spacing="20" VerticalOptions="Center">
             <Label Text="Admin Login" Style="{StaticResource HeaderLabelStyle}" />
 

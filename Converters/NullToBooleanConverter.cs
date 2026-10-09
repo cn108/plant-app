@@ -6,7 +6,8 @@ namespace FinalYearProject
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            return value is not null;
+            var hasValue = value is not null;
+            return string.Equals(parameter as string, "invert", StringComparison.OrdinalIgnoreCase) ? !hasValue : hasValue;
         }
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

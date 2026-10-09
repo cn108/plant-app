@@ -13,7 +13,7 @@ namespace FinalYearProject
             _plantAppDatabase = new PlantAppDatabase();
         }
 
-        private void OnSendMessageClicked(object sender, EventArgs e)
+        private async void OnSendMessageClicked(object sender, EventArgs e)
         {
             try
             {
@@ -28,6 +28,25 @@ namespace FinalYearProject
                     return;
                 }
 
+                if (ApiClient.IsSignedIn)
+                {
+                    var posted = await ApiClient.CreatePostAsync(category, message);
+                    if (posted.Ok)
+                    {
+                        StatusLabel.TextColor = Color.FromArgb("#1F693C");
+                        StatusLabel.Text = "Message sent!";
+                        MessageEntry.Text = string.Empty;
+                        return;
+                    }
+
+                    if (!posted.Unreachable)
+                    {
+                        StatusLabel.TextColor = Colors.Red;
+                        StatusLabel.Text = posted.Error;
+                        return;
+                    }
+                }
+
                 var forumMessage = new ForumMessage
                 {
                     UserId = userId,
@@ -39,7 +58,7 @@ namespace FinalYearProject
 
                 _plantAppDatabase.AddForumMessage(forumMessage);
 
-                StatusLabel.TextColor = Colors.Green;
+                StatusLabel.TextColor = Color.FromArgb("#1F693C");
                 StatusLabel.Text = "Message sent!";
                 MessageEntry.Text = string.Empty;
             }

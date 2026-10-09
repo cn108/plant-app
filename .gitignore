@@ -6,3 +6,8 @@ obj/
 *.userosscache
 *.sln.docstates
 *.db3
+
+server/**/bin/
+server/**/obj/
+*.db
+appsettings.Production.json

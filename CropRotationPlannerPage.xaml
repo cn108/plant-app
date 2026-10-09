@@ -10,7 +10,7 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Grid Padding="10">
-                        <Frame BackgroundColor="LightGreen"
+                        <Frame BackgroundColor="{StaticResource Green5}"
                                WidthRequest="80" 
                                HeightRequest="80">
                             <Grid>

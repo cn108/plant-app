@@ -11,7 +11,9 @@ namespace FinalYearProject
         public App()
         {
             InitializeComponent();
+            UserAppTheme = AppTheme.Light;
             Database = new PlantAppDatabase();
+            _ = ApiClient.RestoreAsync();
             NavigateToAppropriatePage();
         }
 

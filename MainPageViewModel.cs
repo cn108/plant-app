@@ -78,30 +78,21 @@ namespace FinalYearProject
                 using var memoryStream = new MemoryStream();
                 await stream.CopyToAsync(memoryStream);
                 var imageBytes = memoryStream.ToArray();
+                Photo = ImageSource.FromStream(() => new MemoryStream(imageBytes, writable: false));
 
-                var predictions = await Task.Run(() =>
-                    MLModel1.PredictAllLabels(new MLModel1.ModelInput
-                    {
-                        ImageSource = imageBytes
-                    })
-                    .Take(3)
-                    .ToArray());
-
-                if (predictions.Length == 0)
+                var lines = await IdentifyAsync(imageBytes, photoResult.FileName);
+                if (lines is null)
                 {
-                    OutputLabel = "No plant predictions were returned. Try another photo.";
                     return;
                 }
 
-                Photo = ImageSource.FromStream(() => new MemoryStream(imageBytes, writable: false));
-                OutputLabel = "Top predictions:" + Environment.NewLine +
-                    string.Join(Environment.NewLine, predictions.Select(
-                        prediction => $"{prediction.Key}: {prediction.Value:P2}"));
+                OutputLabel = lines.Count == 0
+                    ? "No plant was recognised. Try a clear, close-up photo of a leaf or flower."
+                    : "Top matches:" + Environment.NewLine + string.Join(Environment.NewLine, lines);
             }
-            catch (FileNotFoundException ex)
+            catch (PlantIdentificationException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Plant identification model is missing: {ex}");
-                OutputLabel = "Plant identification is unavailable because the trained model file is missing.";
+                OutputLabel = ex.Message;
             }
             catch (Exception ex)
             {
@@ -112,6 +103,56 @@ namespace FinalYearProject
             {
                 IsRunning = false;
             }
+        }
+
+        private static async Task<List<string>?> IdentifyAsync(byte[] imageBytes, string fileName)
+        {
+            if (File.Exists(Path.Combine(AppContext.BaseDirectory, "MLModel1.mlnet")))
+            {
+                var local = await Task.Run(() =>
+                    MLModel1.PredictAllLabels(new MLModel1.ModelInput { ImageSource = imageBytes })
+                        .Take(3)
+                        .Select(p => $"{p.Key}: {p.Value:P0}")
+                        .ToList());
+                return local;
+            }
+
+            var server = await ApiClient.IdentifyAsync(imageBytes, fileName, "image/jpeg");
+            if (server.Ok && server.Value is not null)
+            {
+                return server.Value
+                    .Select(m => string.IsNullOrWhiteSpace(m.CommonName)
+                        ? $"{m.ScientificName}: {m.Score:P0}"
+                        : $"{m.CommonName} ({m.ScientificName}): {m.Score:P0}")
+                    .ToList();
+            }
+
+            var apiKey = await PlantIdentificationService.GetApiKeyAsync();
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+                var entered = page is null
+                    ? null
+                    : await page.DisplayPromptAsync(
+                        "Plant identification",
+                        "Enter your free Pl@ntNet API key (my.plantnet.org). It is stored securely on this device.",
+                        "Save", "Cancel", "API key");
+
+                if (string.IsNullOrWhiteSpace(entered))
+                {
+                    throw new PlantIdentificationException("Plant identification needs a Pl@ntNet API key. Tap identify again to add one.");
+                }
+
+                apiKey = entered.Trim();
+                await PlantIdentificationService.SaveApiKeyAsync(apiKey);
+            }
+
+            var matches = await PlantIdentificationService.IdentifyAsync(imageBytes, fileName, apiKey);
+            return matches
+                .Select(m => string.IsNullOrWhiteSpace(m.CommonName)
+                    ? $"{m.ScientificName}: {m.Score:P0}"
+                    : $"{m.CommonName} ({m.ScientificName}): {m.Score:P0}")
+                .ToList();
         }
     }
 }

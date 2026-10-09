@@ -9,23 +9,13 @@
         <local:FruitsPageViewModel />
     </ContentPage.BindingContext>
 
-    <ContentPage.Background>
-        <LinearGradientBrush EndPoint="0,1">
-            <GradientStop Color="Green" Offset="0.1" />
-            <GradientStop Color="#6A0" Offset="1.0" />
-        </LinearGradientBrush>
-    </ContentPage.Background>
+    <StackLayout Padding="20" Spacing="12">
+        <Label Text="Select a fruit to add to the care timeline"
+               Style="{StaticResource SectionTitle}" />
 
-    <StackLayout Padding="10">
-        <!-- Title for the page -->
-        <Label Text="Select a fruit to add to the care timeline" 
-               FontAttributes="Bold" 
-               FontSize="Medium" 
-               HorizontalOptions="Center" />
-
-        <ListView ItemsSource="{Binding FilteredPlants}" 
-                  SelectedItem="{Binding SelectedFruit}" 
-                  HasUnevenRows="True" 
+        <ListView ItemsSource="{Binding FilteredPlants}"
+                  SelectedItem="{Binding SelectedFruit}"
+                  HasUnevenRows="True"
                   SeparatorVisibility="Default">
 
             <!-- Define the layout for each item -->
@@ -33,9 +23,9 @@
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout Orientation="Horizontal" Padding="10">
-                            <Label Text="{Binding PlantName}" 
-                                   FontSize="Large" 
-                                   VerticalOptions="Center" 
+                            <Label Text="{Binding PlantName}"
+                                   FontSize="Large"
+                                   VerticalOptions="Center"
                                    Padding="10,0,0,0" />
                         </StackLayout>
                     </ViewCell>
@@ -43,11 +33,12 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <Button Text="View Details"
+        <Button Text="View details"
+                Style="{StaticResource SecondaryButton}"
                 Command="{Binding ViewDetailsCommand}"
                 IsEnabled="{Binding SelectedFruit, Converter={StaticResource NullToBooleanConverter}}" />
-        <Button Text="Add to Timeline" 
-                Command="{Binding AddToTimelineCommand}" 
+        <Button Text="Add to timeline"
+                Command="{Binding AddToTimelineCommand}"
                 IsEnabled="{Binding SelectedFruit, Converter={StaticResource NullToBooleanConverter}}" />
     </StackLayout>
 </ContentPage>

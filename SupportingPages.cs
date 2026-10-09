@@ -20,7 +20,7 @@ namespace FinalYearProject
                         Text = "Plant Companion",
                         FontSize = 32,
                         FontAttributes = FontAttributes.Bold,
-                        TextColor = Color.FromArgb("#1B5E20"),
+                        TextColor = Color.FromArgb("#164F2C"),
                         HorizontalTextAlignment = TextAlignment.Center
                     },
                     new Label
@@ -42,7 +42,7 @@ namespace FinalYearProject
             var button = new Button
             {
                 Text = text,
-                BackgroundColor = Color.FromArgb("#2E7D32"),
+                BackgroundColor = Color.FromArgb("#1F693C"),
                 TextColor = Colors.White,
                 CornerRadius = 10
             };
@@ -78,7 +78,7 @@ namespace FinalYearProject
                         new Button
                         {
                             Text = "Register",
-                            BackgroundColor = Color.FromArgb("#2E7D32"),
+                            BackgroundColor = Color.FromArgb("#1F693C"),
                             TextColor = Colors.White,
                             Command = new Command(async () => await RegisterAsync())
                         }
@@ -114,6 +114,23 @@ namespace FinalYearProject
             if (password.Length < 8)
             {
                 _statusLabel.Text = "Choose a password with at least 8 characters.";
+                return;
+            }
+
+            var online = await ApiClient.RegisterAsync(username, email, password);
+            if (online.Ok && online.Value is not null)
+            {
+                App.SetCurrentUser(online.Value.UserId, username);
+                Preferences.Set("user_id", online.Value.UserId);
+                Preferences.Set("user_email", email);
+                Preferences.Set("user_username", username);
+                Application.Current!.MainPage = new AppShell();
+                return;
+            }
+
+            if (!online.Unreachable)
+            {
+                _statusLabel.Text = online.Error ?? "Unable to create the account.";
                 return;
             }
 
