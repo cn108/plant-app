@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  IgnorableNamespaces="uap mp">
+  <Identity Name="com.companyname.finalyearproject" Publisher="CN=FinalYearProject" Version="1.0.0.0" />
+  <mp:PhoneIdentity PhoneProductId="6e0c4e66-3581-4c2b-bf18-25f68025a112" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Properties>
+    <DisplayName>Plant Companion</DisplayName>
+    <PublisherDisplayName>Plant Companion</PublisherDisplayName>
+    <Logo>appicon.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
+      <uap:VisualElements DisplayName="Plant Companion" Description="Plant Companion" Square150x150Logo="appicon.png" Square44x44Logo="appicon.png" BackgroundColor="#2E7D32">
+        <uap:DefaultTile />
+        <uap:SplashScreen Image="appicon.png" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+</Package>

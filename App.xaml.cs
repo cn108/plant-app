@@ -11,12 +11,8 @@ namespace FinalYearProject
         public App()
         {
             InitializeComponent();
-            // Initialize the database
             Database = new PlantAppDatabase();
-            // Set the MainPage to the WelcomePage initially
-            MainPage = new NavigationPage(new WelcomePage());
-            //MainPage = new AppShell();
-
+            NavigateToAppropriatePage();
         }
 
         public static void SetCurrentUser(int userId, string userName)
@@ -27,19 +23,18 @@ namespace FinalYearProject
 
         public void NavigateToAppropriatePage()
         {
-            if (Preferences.ContainsKey("user_id") && Preferences.ContainsKey("user_email") && Preferences.ContainsKey("user_username"))
+            var userId = Preferences.Get("user_id", 0);
+            var email = Preferences.Get("user_email", string.Empty);
+            var username = Preferences.Get("user_username", string.Empty);
+
+            if (userId > 0 && !string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(username))
             {
-                var userId = Preferences.Get("user_id", 0);
-                var email = Preferences.Get("user_email", string.Empty);
-                var username = Preferences.Get("user_username", string.Empty);
-
                 SetCurrentUser(userId, username);
-
-                MainPage = new NavigationPage(new DashboardPage());
+                MainPage = new AppShell();
             }
             else
             {
-                MainPage = new NavigationPage(new LoginPage());
+                MainPage = new NavigationPage(new WelcomePage());
             }
         }
     }

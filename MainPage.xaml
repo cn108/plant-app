@@ -13,7 +13,11 @@
                        HorizontalOptions="Center" />
             </Frame>
 
-            <Image Source="{Binding Photo}" Aspect="AspectFill" HeightRequest="450" WidthRequest="450" />
+            <Image Source="{Binding Photo}"
+                   Aspect="AspectFit"
+                   HeightRequest="360"
+                   HorizontalOptions="Fill"
+                   Margin="16,0" />
 
             <ActivityIndicator IsRunning="{Binding IsRunning}" />
 

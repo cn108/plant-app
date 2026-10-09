@@ -23,7 +23,6 @@
                FontSize="Medium" 
                HorizontalOptions="Center" />
 
-        <!-- ListView displaying fruits -->
         <ListView ItemsSource="{Binding FilteredPlants}" 
                   SelectedItem="{Binding SelectedFruit}" 
                   HasUnevenRows="True" 
@@ -34,12 +33,6 @@
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout Orientation="Horizontal" Padding="10">
-                            <!-- Fruit Image -->
-                            <Image Source="{Binding ImagePath}"
-                                   WidthRequest="50" 
-                                   HeightRequest="50" 
-                                   VerticalOptions="Center" />
-                            <!-- Fruit Name -->
                             <Label Text="{Binding PlantName}" 
                                    FontSize="Large" 
                                    VerticalOptions="Center" 
@@ -50,7 +43,9 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <!-- Button to add the selected fruit to the care timeline -->
+        <Button Text="View Details"
+                Command="{Binding ViewDetailsCommand}"
+                IsEnabled="{Binding SelectedFruit, Converter={StaticResource NullToBooleanConverter}}" />
         <Button Text="Add to Timeline" 
                 Command="{Binding AddToTimelineCommand}" 
                 IsEnabled="{Binding SelectedFruit, Converter={StaticResource NullToBooleanConverter}}" />

@@ -32,9 +32,8 @@
         <VerticalStackLayout Spacing="25" Padding="10" VerticalOptions="Fill">
 
             <!-- Header -->
-            <Frame BackgroundColor="#4CAF50" Padding="24" CornerRadius="0">
-                <!-- Green background -->
-                <Label Text="Dashboard" TextColor="#1B5E20" Style="{StaticResource HeaderLabelStyle} " />
+            <Frame BackgroundColor="#2E7D32" Padding="24" CornerRadius="0">
+                <Label Text="Dashboard" TextColor="White" Style="{StaticResource HeaderLabelStyle}" />
             </Frame>
 
             <!-- Search Bar with Autocomplete -->
@@ -47,15 +46,17 @@
             <CollectionView ItemsSource="{Binding FilteredPlants}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <TextCell Text="{Binding PlantName}" Detail="{Binding Season}" />
+                        <VerticalStackLayout Padding="12,8" Spacing="2">
+                            <Label Text="{Binding PlantName}" FontAttributes="Bold" TextColor="#1B5E20" />
+                            <Label Text="{Binding Season}" FontSize="13" TextColor="Gray" />
+                        </VerticalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
             
-            <!-- Icons for Fruits and Vegetables -->
             <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
-                <ImageButton Source="fruits_icon.png" Command="{Binding NavigateToFruitsCommand}" />
-                <ImageButton Source="vegetables_icon.png" Command="{Binding NavigateToVegetablesCommand}" />
+                <Button Text="Fruits" Command="{Binding NavigateToFruitsCommand}" Style="{StaticResource ButtonStyle}" />
+                <Button Text="Vegetables" Command="{Binding NavigateToVegetablesCommand}" Style="{StaticResource ButtonStyle}" />
             </HorizontalStackLayout>
 
            
@@ -95,7 +96,7 @@
             <Button Text="Add Plant" TextColor="#1B5E20" Command="{Binding AddPlantCommand}" Style="{StaticResource ButtonStyle}" />
 
             <!-- Weather Information -->
-            <Label Text="{Binding Temperature, StringFormat='Temperature: {0}°C'}" TextColor="#1B5E20" FontSize="24" HorizontalOptions="Center" />
+            <Label Text="{Binding WeatherMessage}" TextColor="#1B5E20" FontSize="20" HorizontalOptions="Center" />
             <ActivityIndicator IsRunning="{Binding IsFetchingWeather}" IsVisible="{Binding IsFetchingWeather}" />
             <Button Text="View Detailed Weather" Command="{Binding NavigateToWeatherCommand}" TextColor="#1B5E20" Style="{StaticResource ButtonStyle}" />
         </VerticalStackLayout>

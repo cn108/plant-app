@@ -1,12 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
+using FinalYearProject.Models;
 
 namespace FinalYearProject
 {
     public class FruitsPageViewModel : INotifyPropertyChanged
     {
-        private readonly PlantAppDatabase _plantRepository;
         private readonly PlantAppDatabase _taskRepository;
 
         // Collection to hold the predefined fruits
@@ -22,18 +22,6 @@ namespace FinalYearProject
                 {
                     selectedFruit = value;
                     OnPropertyChanged(nameof(SelectedFruit));
-
-                    if (selectedFruit != null)
-                    {
-                        // Navigate to FruitDetailPage when a fruit is selected
-                        Application.Current.MainPage.Navigation.PushAsync(new FruitDetailPage
-                        {
-                            BindingContext = selectedFruit
-                        });
-
-                        // Load plant care tips related to the selected fruit
-                        
-                    }
                 }
             }
         }
@@ -73,6 +61,8 @@ namespace FinalYearProject
 
         // Command to add the selected fruit to the care timeline
         public ICommand AddToTimelineCommand { get; private set; }
+        public ICommand ViewDetailsCommand { get; private set; }
+        private readonly int _userId;
 
         // Constructor for ViewModel
         public FruitsPageViewModel() : this(App.CurrentUserId)
@@ -82,10 +72,12 @@ namespace FinalYearProject
         // Overloaded constructor to pass the current user ID
         public FruitsPageViewModel(int userId)
         {
-            _plantRepository = new PlantAppDatabase(); // Assuming PlantAppDatabase provides access to data
+            _userId = userId;
             _taskRepository = new PlantAppDatabase();
 
             FilteredPlants = new ObservableCollection<DBPlants>();
+            AddToTimelineCommand = new Command(async () => await AddSelectedFruitToTimelineAsync());
+            ViewDetailsCommand = new Command(async () => await ViewSelectedFruitAsync());
             LoadFruits(); // Load predefined fruits for this user
 
         }
@@ -95,21 +87,21 @@ namespace FinalYearProject
         {
             var predefinedFruits = new List<DBPlants>
             {
-                new DBPlants { PId = 1, UserId = App.CurrentUserId, PlantName = "Apple", ImagePath =  "apple.jpg" , Season = "Fall", WaterPerLiters = 2 },
-                new DBPlants { PId = 2, UserId = App.CurrentUserId, PlantName = "Banana", ImagePath =  "banana.jpg", Season = "All Year", WaterPerLiters = 3 },
-                new DBPlants { PId = 3, UserId = App.CurrentUserId, PlantName = "Orange", ImagePath = "orange.jpg", Season = "Winter", WaterPerLiters = 2 },
-                new DBPlants { PId = 4, UserId = App.CurrentUserId, PlantName = "Grapes", ImagePath = "grapes.jpg", Season = "Summer", WaterPerLiters = 1 },
-                new DBPlants { PId = 5, UserId = App.CurrentUserId, PlantName = "Strawberry", ImagePath = "strawberry.jpg", Season = "Spring", WaterPerLiters = 1 },
-                new DBPlants { PId = 6, UserId = App.CurrentUserId, PlantName = "Mango", ImagePath = "mango.jpg", Season = "Summer", WaterPerLiters = 4 },
-                new DBPlants { PId = 7, UserId = App.CurrentUserId, PlantName = "Pineapple", ImagePath = "pineapple.jpg", Season = "Summer", WaterPerLiters = 3 },
-                new DBPlants { PId = 8, UserId = App.CurrentUserId, PlantName = "Peach", ImagePath = "peach.jpg", Season = "Summer", WaterPerLiters = 2 },
-                new DBPlants { PId = 9, UserId = App.CurrentUserId, PlantName = "Plum", ImagePath = "plum.jpg", Season = "Summer", WaterPerLiters = 2 },
-                new DBPlants { PId = 10, UserId = App.CurrentUserId, PlantName = "Watermelon", ImagePath = "watermelon.jpg", Season = "Summer", WaterPerLiters = 5 },
-                new DBPlants { PId = 11, UserId = App.CurrentUserId, PlantName = "Lemon", ImagePath = "lemon.jpg", Season = "All Year", WaterPerLiters = 2 },
-                new DBPlants { PId = 12, UserId = App.CurrentUserId, PlantName = "Kiwi", ImagePath = "kiwi.jpg", Season = "Winter", WaterPerLiters = 2 },
-                new DBPlants { PId = 13, UserId = App.CurrentUserId, PlantName = "Cherry", ImagePath = "cherry.jpg", Season = "Summer", WaterPerLiters = 1 },
-                new DBPlants { PId = 14, UserId = App.CurrentUserId, PlantName = "Avocado", ImagePath = "avocado.jpg", Season = "Spring", WaterPerLiters = 3 },
-                new DBPlants { PId = 15, UserId = App.CurrentUserId, PlantName = "Papaya", ImagePath = "papaya.jpg", Season = "Summer", WaterPerLiters = 3 }
+                new DBPlants { PId = 1, UserId = _userId, PlantName = "Apple", Season = "Fall", WaterPerLiters = 2 },
+                new DBPlants { PId = 2, UserId = _userId, PlantName = "Banana", Season = "All Year", WaterPerLiters = 3 },
+                new DBPlants { PId = 3, UserId = _userId, PlantName = "Orange", Season = "Winter", WaterPerLiters = 2 },
+                new DBPlants { PId = 4, UserId = _userId, PlantName = "Grapes", Season = "Summer", WaterPerLiters = 1 },
+                new DBPlants { PId = 5, UserId = _userId, PlantName = "Strawberry", Season = "Spring", WaterPerLiters = 1 },
+                new DBPlants { PId = 6, UserId = _userId, PlantName = "Mango", Season = "Summer", WaterPerLiters = 4 },
+                new DBPlants { PId = 7, UserId = _userId, PlantName = "Pineapple", Season = "Summer", WaterPerLiters = 3 },
+                new DBPlants { PId = 8, UserId = _userId, PlantName = "Peach", Season = "Summer", WaterPerLiters = 2 },
+                new DBPlants { PId = 9, UserId = _userId, PlantName = "Plum", Season = "Summer", WaterPerLiters = 2 },
+                new DBPlants { PId = 10, UserId = _userId, PlantName = "Watermelon", Season = "Summer", WaterPerLiters = 5 },
+                new DBPlants { PId = 11, UserId = _userId, PlantName = "Lemon", Season = "All Year", WaterPerLiters = 2 },
+                new DBPlants { PId = 12, UserId = _userId, PlantName = "Kiwi", Season = "Winter", WaterPerLiters = 2 },
+                new DBPlants { PId = 13, UserId = _userId, PlantName = "Cherry", Season = "Summer", WaterPerLiters = 1 },
+                new DBPlants { PId = 14, UserId = _userId, PlantName = "Avocado", Season = "Spring", WaterPerLiters = 3 },
+                new DBPlants { PId = 15, UserId = _userId, PlantName = "Papaya", Season = "Summer", WaterPerLiters = 3 }
             };
 
             foreach (var fruit in predefinedFruits)
@@ -118,6 +110,39 @@ namespace FinalYearProject
             }
 
             OnPropertyChanged(nameof(FilteredPlants));
+        }
+
+        private async Task AddSelectedFruitToTimelineAsync()
+        {
+            if (SelectedFruit is null)
+            {
+                return;
+            }
+
+            _taskRepository.AddPlantCareTask(new PlantCareTask
+            {
+                UserId = _userId,
+                PlantName = SelectedFruit.PlantName ?? "Plant",
+                TaskDescription = $"Water the plant ({SelectedFruit.WaterPerLiters} L).",
+                TaskDate = DateTime.Now,
+                DueDate = DateTime.Today.AddDays(1)
+            });
+
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Added",
+                $"{SelectedFruit.PlantName} was added to your care timeline.",
+                "OK");
+        }
+
+        private async Task ViewSelectedFruitAsync()
+        {
+            if (SelectedFruit is not null)
+            {
+                await Application.Current!.MainPage!.Navigation.PushAsync(new FruitDetailPage
+                {
+                    BindingContext = SelectedFruit
+                });
+            }
         }
 
 

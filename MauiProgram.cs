@@ -6,18 +6,14 @@ namespace FinalYearProject
     {
         public static MauiApp CreateMauiApp()
         {
+            SQLitePCL.Batteries_V2.Init();
+
             var builder = MauiApp.CreateBuilder();
             builder
-                .UseMauiApp<App>()                
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("CustomFont-Bold.ttf", "CustomFont-Bold");
-                    fonts.AddFont("CustomFont-Regular.ttf", "CustomFont-Regular");
-                });
+                .UseMauiApp<App>();
 
 #if DEBUG
-    		builder.Logging.AddDebug();
-            builder.Services.AddSingleton<HttpClient>();
+            builder.Logging.AddDebug();
 #endif
 
 

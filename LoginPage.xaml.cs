@@ -1,6 +1,5 @@
 using Microsoft.Maui.Controls;
 using System;
-using System.Linq;
 
 namespace FinalYearProject
 {
@@ -15,8 +14,8 @@ namespace FinalYearProject
 
         private async void OnLoginClicked(object sender, EventArgs e)
         {
-            var email = EmailEntry.Text?.Trim().ToLower();
-            var password = PasswordEntry.Text?.Trim();
+            var email = EmailEntry.Text?.Trim().ToLowerInvariant();
+            var password = PasswordEntry.Text;
 
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
@@ -25,27 +24,18 @@ namespace FinalYearProject
             }
 
             var user = _plantAppDatabase.GetUserByEmail(email);
-            if (user == null)
+            if (user is null ||
+                string.IsNullOrEmpty(user.Password) ||
+                !BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
                 await DisplayAlert("Error", "Invalid email or password.", "OK");
                 return;
             }
 
-            // For debugging purposes
-            Console.WriteLine($"Stored Hashed Password: {user.Password}");
-            Console.WriteLine($"Password Verification Result: {BCrypt.Net.BCrypt.Verify(password, user.Password)}");
-
-            if (!BCrypt.Net.BCrypt.Verify(password, user.Password))
-            {
-                await DisplayAlert("Error", "Invalid password.", "OK");
-                return;
-            }
-
-            // Store user session using Preferences
             Preferences.Set("user_id", user.UserId);
             Preferences.Set("user_email", user.Email);
-            Preferences.Set("user_username", user.Username);
-            await Navigation.PushAsync(new DashboardPage());
+            Preferences.Set("user_username", user.Username ?? string.Empty);
+            App.SetCurrentUser(user.UserId, user.Username ?? string.Empty);
             Application.Current.MainPage = new AppShell();
         }
 
