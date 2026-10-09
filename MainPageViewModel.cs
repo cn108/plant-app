@@ -127,32 +127,10 @@ namespace FinalYearProject
                     .ToList();
             }
 
-            var apiKey = await PlantIdentificationService.GetApiKeyAsync();
-            if (string.IsNullOrWhiteSpace(apiKey))
-            {
-                var page = Application.Current?.Windows.FirstOrDefault()?.Page;
-                var entered = page is null
-                    ? null
-                    : await page.DisplayPromptAsync(
-                        "Plant identification",
-                        "Enter your free Pl@ntNet API key (my.plantnet.org). It is stored securely on this device.",
-                        "Save", "Cancel", "API key");
-
-                if (string.IsNullOrWhiteSpace(entered))
-                {
-                    throw new PlantIdentificationException("Plant identification needs a Pl@ntNet API key. Tap identify again to add one.");
-                }
-
-                apiKey = entered.Trim();
-                await PlantIdentificationService.SaveApiKeyAsync(apiKey);
-            }
-
-            var matches = await PlantIdentificationService.IdentifyAsync(imageBytes, fileName, apiKey);
-            return matches
-                .Select(m => string.IsNullOrWhiteSpace(m.CommonName)
-                    ? $"{m.ScientificName}: {m.Score:P0}"
-                    : $"{m.CommonName} ({m.ScientificName}): {m.Score:P0}")
-                .ToList();
+            var message = server.Unreachable
+                ? "Can't reach the plant identification service. Check your connection and try again."
+                : "Plant identification is temporarily unavailable. Please try again later.";
+            throw new PlantIdentificationException(message);
         }
     }
 }

@@ -159,10 +159,20 @@ namespace FinalYearProject
                 return;
             }
 
-            _database.DeletePlantCareTask(task.TaskId);
+            _database.CompletePlantCareTask(task);
             Reminders.Remove(task);
             CareTasks.Remove(task);
             PlantCareTimeline.Remove(task);
+            var upcoming = _database.GetPlantCareTasksByUser(App.CurrentUserId);
+            foreach (var next in upcoming.Where(t => t.DueDate >= DateTime.Now && !Reminders.Any(r => r.TaskId == t.TaskId)))
+            {
+                Reminders.Add(next);
+            }
+            foreach (var next in upcoming.Where(t => !CareTasks.Any(r => r.TaskId == t.TaskId)))
+            {
+                CareTasks.Add(next);
+                PlantCareTimeline.Add(next);
+            }
         }
 
         private void LoadCareTasks()

@@ -53,11 +53,11 @@ dotnet test server\PlantApp.Api.Tests
 
 ## Status and roadmap
 
-Done: secure API with tests, server-side auth and moderation, key-safe identification proxy, weather-adaptive care scheduling, five-green UI.
+Done: secure API with tests, server-side auth and moderation, key-safe identification proxy, weather-adaptive care scheduling, five-green UI, plant catalogue with care guides (fruits and vegetables, add-to-garden), recurring watering reminders, tap-to-plant crop rotation planner with family-based advice, offline Plant Assistant, weather by city or location with gardening advice.
 
 Not done yet:
 - The plants and care-task screens still use local SQLite data; only sign-in, registration, forum and identification call the API.
-- Push notifications, photo growth journal, plant detail/care guides, offline sync.
+- Push notifications, photo growth journal, offline sync.
 - Android and iOS builds, store packaging and a Windows installer.
 - The API has no admin-creation flow yet (promote a user by setting `Role = "Admin"` in the database).
 

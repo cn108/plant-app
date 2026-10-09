@@ -55,6 +55,20 @@ namespace FinalYearProject
             else await LoadAsync();
         }
 
+        private void OnToggleRepliesClicked(object? sender, EventArgs e)
+        {
+            if (sender is not Button { Parent: Grid { Parent: VerticalStackLayout card } }) return;
+            var replies = card.Children.OfType<VerticalStackLayout>().FirstOrDefault(v => v.StyleId == "Replies");
+            if (replies is null) return;
+
+            replies.IsVisible = !replies.IsVisible;
+            if (replies.IsVisible)
+            {
+                replies.Opacity = 0;
+                _ = replies.FadeTo(1, 220, Easing.CubicOut);
+            }
+        }
+
         private async void OnReportClicked(object? sender, EventArgs e)
         {
             if (sender is not Button { BindingContext: ApiPost post }) return;

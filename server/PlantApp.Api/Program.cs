@@ -210,7 +210,7 @@ app.MapPost("/api/identify", async (HttpRequest request, IHttpClientFactory fact
     return response.IsSuccessStatusCode
         ? Results.Content(body, "application/json")
         : Results.Problem("Identification service error.", statusCode: 502);
-}).RequireAuthorization().DisableAntiforgery();
+}).AllowAnonymous().DisableAntiforgery();
 
 app.Run();
 

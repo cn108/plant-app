@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:FinalYearProject"
              x:Class="FinalYearProject.MessagesPage"
              Title="Forum messages">
     <Grid RowDefinitions="Auto,*" Padding="20" RowSpacing="16">
@@ -20,18 +21,41 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border Style="{StaticResource Card}" Margin="0,0,0,12">
-                            <VerticalStackLayout Spacing="6">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Label Text="{Binding Username}" FontAttributes="Bold" FontSize="18" TextColor="{StaticResource Green2}" />
-                                    <Label Grid.Column="1" Text="{Binding Category}" TextColor="{StaticResource Green3}" FontAttributes="Bold" />
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                    <Border Style="{StaticResource IconBadge}" WidthRequest="42" HeightRequest="42" StrokeShape="RoundRectangle 21" BackgroundColor="{StaticResource Green3}">
+                                        <Label Text="{Binding Initial}" FontFamily="PoppinsSemiBold" FontSize="18" TextColor="White" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label Text="{Binding Username}" FontFamily="PoppinsSemiBold" FontSize="15" TextColor="{StaticResource Green2}" />
+                                        <Label Text="{Binding CreatedAt, StringFormat='{0:dd MMM yyyy HH:mm}'}" FontSize="11" TextColor="{StaticResource Muted}" />
+                                    </VerticalStackLayout>
+                                    <Border Grid.Column="2" BackgroundColor="#E6F2EA" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,4" VerticalOptions="Center">
+                                        <Label Text="{Binding Category}" TextColor="{StaticResource Green2}" FontFamily="PoppinsSemiBold" FontSize="12" />
+                                    </Border>
                                 </Grid>
-                                <Label Text="{Binding Text}" FontSize="16" />
-                                <Label Text="{Binding CreatedAt, StringFormat='{0:dd MMM yyyy HH:mm}'}" FontSize="12" TextColor="{StaticResource Muted}" />
-                                <Label Text="{Binding LatestReply}" IsVisible="{Binding HasReplies}" TextColor="{StaticResource Muted}" />
+                                <Label Text="{Binding Text}" FontSize="15" />
+                                <VerticalStackLayout StyleId="Replies" IsVisible="False" Spacing="6" Margin="14,4,0,4" BindableLayout.ItemsSource="{Binding Replies}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="local:ApiReply">
+                                            <Border BackgroundColor="#F3F6F4" StrokeThickness="0" Padding="12,8" StrokeShape="RoundRectangle 12">
+                                                <VerticalStackLayout Spacing="2">
+                                                    <HorizontalStackLayout Spacing="8">
+                                                        <Label Text="{Binding Username}" FontFamily="PoppinsSemiBold" FontSize="13" TextColor="{StaticResource Green2}" />
+                                                        <Label Text="{Binding CreatedAt, StringFormat='{0:dd MMM HH:mm}'}" FontSize="11" TextColor="{StaticResource Muted}" VerticalOptions="Center" />
+                                                    </HorizontalStackLayout>
+                                                    <Label Text="{Binding Text}" FontSize="14" />
+                                                </VerticalStackLayout>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
                                 <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-                                    <Label Text="{Binding ReplySummary}" VerticalOptions="Center" TextColor="{StaticResource Muted}" />
-                                    <Button Grid.Column="1" Text="Reply" Style="{StaticResource SecondaryButton}" Clicked="OnReplyClicked" />
-                                    <Button Grid.Column="2" Text="Report" Style="{StaticResource SecondaryButton}" Clicked="OnReportClicked" />
+                                    <Button Text="{Binding ReplySummary}" IsEnabled="{Binding HasReplies}" HorizontalOptions="Start"
+                                            BackgroundColor="Transparent" TextColor="{StaticResource Green3}" FontSize="13"
+                                            MinimumHeightRequest="36" Padding="4,0" Clicked="OnToggleRepliesClicked" />
+                                    <Button Grid.Column="1" Text="Reply" Style="{StaticResource SecondaryButton}" MinimumHeightRequest="38" Padding="16,6" Clicked="OnReplyClicked" />
+                                    <Button Grid.Column="2" Text="Report" Style="{StaticResource SecondaryButton}" MinimumHeightRequest="38" Padding="16,6" Clicked="OnReportClicked" />
                                 </Grid>
                             </VerticalStackLayout>
                         </Border>

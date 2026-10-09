@@ -20,6 +20,39 @@ namespace FinalYearProject
             {
                 _plantName = value;
                 OnPropertyChanged(nameof(PlantName));
+                if (PlantCatalog.Find(value) is { } match)
+                {
+                    Season = match.Season;
+                    WaterPerLiters = match.Litres.ToString();
+                    WateringIntervalDays = match.IntervalDays.ToString();
+                    Suggestion = $"Filled in from our guide: {match.Tip}";
+                }
+                else
+                {
+                    Suggestion = string.Empty;
+                }
+            }
+        }
+
+        private string _wateringIntervalDays = "7";
+        public string WateringIntervalDays
+        {
+            get => _wateringIntervalDays;
+            set
+            {
+                _wateringIntervalDays = value;
+                OnPropertyChanged(nameof(WateringIntervalDays));
+            }
+        }
+
+        private string _suggestion = string.Empty;
+        public string Suggestion
+        {
+            get => _suggestion;
+            private set
+            {
+                _suggestion = value;
+                OnPropertyChanged(nameof(Suggestion));
             }
         }
 
@@ -111,11 +144,13 @@ namespace FinalYearProject
             if (string.IsNullOrWhiteSpace(PlantName) ||
                 string.IsNullOrWhiteSpace(Season) ||
                 !int.TryParse(WaterPerLiters, out var waterPerLiters) ||
-                waterPerLiters <= 0)
+                waterPerLiters <= 0 ||
+                !int.TryParse(WateringIntervalDays, out var interval) ||
+                interval is < 1 or > 60)
             {
                 await Application.Current!.MainPage!.DisplayAlert(
                     "Check plant details",
-                    "Enter a plant name, a season, and a positive water amount in litres.",
+                    "Enter a plant name, a season, a positive water amount in litres, and a watering interval of 1-60 days.",
                     "OK");
                 return;
             }
@@ -127,6 +162,7 @@ namespace FinalYearProject
                     PlantName = PlantName.Trim(),
                     Season = Season.Trim(),
                     WaterPerLiters = waterPerLiters,
+                    WateringIntervalDays = interval,
                     ImagePath = PlantImagePath,
                     UserId = App.CurrentUserId
                 });

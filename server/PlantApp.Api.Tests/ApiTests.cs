@@ -85,7 +85,7 @@ public class AuthTests(ApiFactory f) : IClassFixture<ApiFactory>
     {
         var c = f.CreateClient();
         Assert.Equal(HttpStatusCode.Unauthorized, (await c.GetAsync("/api/plants")).StatusCode);
-        Assert.Equal(HttpStatusCode.Unauthorized, (await c.PostAsync("/api/identify", null)).StatusCode);
+        Assert.NotEqual(HttpStatusCode.Unauthorized, (await c.PostAsync("/api/identify", null)).StatusCode);
     }
 }
 

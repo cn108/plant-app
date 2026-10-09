@@ -16,13 +16,42 @@
 
     <Style TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+        <Setter Property="FontFamily" Value="Poppins" />
+    </Style>
+
+    <Style x:Key="IconGlyph" TargetType="Label">
+        <Setter Property="FontFamily" Value="MaterialIcons" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="TextColor" Value="{StaticResource Green2}" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="VerticalTextAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="IconBadge" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="#E6F2EA" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+        <Setter Property="WidthRequest" Value="44" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style x:Key="Tile" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 18" />
+        <Setter Property="Padding" Value="12,14" />
+        <Setter Property="Shadow">
+            <Shadow Brush="#0D381E" Opacity="0.10" Radius="14" Offset="0,4" />
+        </Setter>
     </Style>
 
     <Style TargetType="Button">
         <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
         <Setter Property="TextColor" Value="White" />
         <Setter Property="FontAttributes" Value="Bold" />
-        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="FontFamily" Value="PoppinsSemiBold" />
+        <Setter Property="CornerRadius" Value="14" />
         <Setter Property="Padding" Value="20,12" />
         <Setter Property="MinimumHeightRequest" Value="46" />
         <Setter Property="VisualStateManager.VisualStateGroups">
@@ -102,13 +131,13 @@
 
     <Style x:Key="PageTitle" TargetType="Label">
         <Setter Property="FontSize" Value="28" />
-        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="FontFamily" Value="PoppinsSemiBold" />
         <Setter Property="TextColor" Value="{StaticResource PrimaryDark}" />
     </Style>
 
     <Style x:Key="SectionTitle" TargetType="Label">
         <Setter Property="FontSize" Value="18" />
-        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="FontFamily" Value="PoppinsSemiBold" />
         <Setter Property="TextColor" Value="{StaticResource PrimaryDark}" />
     </Style>
 
@@ -121,8 +150,11 @@
         <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
         <Setter Property="Stroke" Value="{StaticResource Outline}" />
         <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 18" />
         <Setter Property="Padding" Value="16" />
+        <Setter Property="Shadow">
+            <Shadow Brush="#0D381E" Opacity="0.08" Radius="12" Offset="0,3" />
+        </Setter>
     </Style>
 
     <Style x:Key="HeroBanner" TargetType="Border">

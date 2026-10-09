@@ -9,41 +9,78 @@
     </ContentPage.BindingContext>
 
     <ScrollView>
-        <VerticalStackLayout Spacing="18" Padding="20" MaximumWidthRequest="820">
+        <VerticalStackLayout x:Name="Content" Spacing="20" Padding="20" MaximumWidthRequest="860" HorizontalOptions="Center" WidthRequest="860">
 
-            <Border Style="{StaticResource HeroBanner}">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Your garden" FontSize="28" FontAttributes="Bold" TextColor="White" />
-                    <Label Text="{Binding WeatherMessage}" TextColor="White" />
-                    <ActivityIndicator IsRunning="{Binding IsFetchingWeather}"
-                                       IsVisible="{Binding IsFetchingWeather}"
-                                       Color="White" HorizontalOptions="Start" />
-                </VerticalStackLayout>
+            <Border x:Name="Hero" Style="{StaticResource HeroBanner}">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="4">
+                        <Label x:Name="GreetingLabel" Text="Hello" FontSize="26" FontFamily="PoppinsSemiBold" TextColor="White" />
+                        <Label Text="{Binding WeatherMessage}" TextColor="White" FontSize="14" />
+                        <ActivityIndicator IsRunning="{Binding IsFetchingWeather}"
+                                           IsVisible="{Binding IsFetchingWeather}"
+                                           Color="White" HorizontalOptions="Start" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="&#xe430;" FontFamily="MaterialIcons" FontSize="40" TextColor="White" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding Temperature, StringFormat='{0:0}°C'}" FontFamily="PoppinsSemiBold" FontSize="20" TextColor="White" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Grid>
             </Border>
 
-            <SearchBar Placeholder="Search plants" Text="{Binding SearchQuery}"
-                       SearchCommand="{Binding SearchCommand}" />
-
-            <CollectionView ItemsSource="{Binding FilteredPlants}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Border Style="{StaticResource Card}" Margin="0,0,0,8" Padding="14,10">
-                            <VerticalStackLayout Spacing="2">
-                                <Label Text="{Binding PlantName}" FontAttributes="Bold" />
-                                <Label Text="{Binding Season}" Style="{StaticResource Caption}" />
-                            </VerticalStackLayout>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                <Border Style="{StaticResource Tile}">
+                    <HorizontalStackLayout Spacing="12">
+                        <Border Style="{StaticResource IconBadge}">
+                            <Label Text="&#xea35;" Style="{StaticResource IconGlyph}" />
                         </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                <Button Text="Fruits" Command="{Binding NavigateToFruitsCommand}"
-                        Style="{StaticResource SecondaryButton}" />
-                <Button Grid.Column="1" Text="Vegetables" Command="{Binding NavigateToVegetablesCommand}"
-                        Style="{StaticResource SecondaryButton}" />
-                <Button Grid.Column="2" Text="Add plant" Command="{Binding AddPlantCommand}" />
+                        <VerticalStackLayout VerticalOptions="Center">
+                            <Label Text="{Binding FilteredPlants.Count}" FontFamily="PoppinsSemiBold" FontSize="22" TextColor="{StaticResource Green2}" />
+                            <Label Text="Plants" Style="{StaticResource Caption}" />
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource Tile}">
+                    <HorizontalStackLayout Spacing="12">
+                        <Border Style="{StaticResource IconBadge}">
+                            <Label Text="&#xe798;" Style="{StaticResource IconGlyph}" />
+                        </Border>
+                        <VerticalStackLayout VerticalOptions="Center">
+                            <Label Text="{Binding CareTasks.Count}" FontFamily="PoppinsSemiBold" FontSize="22" TextColor="{StaticResource Green2}" />
+                            <Label Text="Care tasks" Style="{StaticResource Caption}" />
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </Border>
             </Grid>
+
+            <SearchBar x:Name="PlantSearch" Placeholder="Search plants" Text="{Binding SearchQuery}"
+                       SearchCommand="{Binding SearchCommand}" TextChanged="OnSearchTextChanged" />
+
+            <VerticalStackLayout x:Name="SearchResults" IsVisible="False" Spacing="8">
+                <Label Text="Search results" Style="{StaticResource SectionTitle}" />
+                <CollectionView ItemsSource="{Binding FilteredPlants}">
+                    <CollectionView.EmptyView>
+                        <Label Text="No plants match your search." Style="{StaticResource Caption}" />
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,8" Padding="14,10">
+                                <HorizontalStackLayout Spacing="12">
+                                    <Border Style="{StaticResource IconBadge}">
+                                        <Label Text="&#xea35;" Style="{StaticResource IconGlyph}" />
+                                    </Border>
+                                    <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{Binding PlantName}" FontFamily="PoppinsSemiBold" />
+                                        <Label Text="{Binding Season}" Style="{StaticResource Caption}" />
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <Label Text="Quick actions" Style="{StaticResource SectionTitle}" />
+            <FlexLayout x:Name="TileGrid" Wrap="Wrap" JustifyContent="Start" />
 
             <Label Text="Upcoming care" Style="{StaticResource SectionTitle}" />
             <CollectionView ItemsSource="{Binding CareTasks}">
@@ -53,15 +90,19 @@
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Style="{StaticResource Card}" Margin="0,0,0,8" Padding="14,10">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <VerticalStackLayout Spacing="2">
-                                    <Label Text="{Binding PlantName}" FontAttributes="Bold" />
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,10" Padding="14,12">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Border Style="{StaticResource IconBadge}">
+                                    <Label Text="&#xe798;" Style="{StaticResource IconGlyph}" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding PlantName}" FontFamily="PoppinsSemiBold" />
                                     <Label Text="{Binding TaskDescription}" Style="{StaticResource Caption}" />
                                 </VerticalStackLayout>
-                                <Label Grid.Column="1" VerticalOptions="Center"
-                                       Text="{Binding TaskDate, StringFormat='{0:dd MMM}'}"
-                                       TextColor="{StaticResource Primary}" FontAttributes="Bold" />
+                                <Border Grid.Column="2" BackgroundColor="#E6F2EA" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,4" VerticalOptions="Center">
+                                    <Label Text="{Binding TaskDate, StringFormat='{0:dd MMM}'}"
+                                           TextColor="{StaticResource Green2}" FontFamily="PoppinsSemiBold" FontSize="13" />
+                                </Border>
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -71,11 +112,16 @@
             <Label Text="Reminders" Style="{StaticResource SectionTitle}" />
             <CollectionView ItemsSource="{Binding Reminders}">
                 <CollectionView.EmptyView>
-                    <Label Text="You're all caught up." Style="{StaticResource Caption}" />
+                    <Border Style="{StaticResource Card}" Padding="14,12">
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="&#xe86c;" Style="{StaticResource IconGlyph}" />
+                            <Label Text="You're all caught up." VerticalOptions="Center" Style="{StaticResource Caption}" />
+                        </HorizontalStackLayout>
+                    </Border>
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Style="{StaticResource Card}" Margin="0,0,0,8" Padding="14,10">
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,10" Padding="14,10">
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                                 <Label Text="{Binding TaskDescription}" VerticalOptions="Center" />
                                 <Button Grid.Column="1" Text="Done"

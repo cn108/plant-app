@@ -5,61 +5,45 @@
              Title="Admin Page">
 
     <ContentPage.Resources>
-        <!-- Admin Page Styles -->
-        <Style x:Key="AdminLabelStyle" TargetType="Label">
-            <Setter Property="FontSize" Value="20" />
-            <Setter Property="TextColor" Value="Black" />
-            <Setter Property="HorizontalOptions" Value="StartAndExpand" />
-            <Setter Property="VerticalOptions" Value="Center" />
-            <Setter Property="FontAttributes" Value="Bold" />
-        </Style>
-
         <Style x:Key="DeleteButtonStyle" TargetType="Button">
-            <Setter Property="BackgroundColor" Value="#C62828" />
+            <Setter Property="BackgroundColor" Value="{StaticResource Danger}" />
             <Setter Property="TextColor" Value="White" />
-            <Setter Property="CornerRadius" Value="15" />
             <Setter Property="HeightRequest" Value="40" />
-            <Setter Property="FontAttributes" Value="Bold" />
-            <Setter Property="WidthRequest" Value="80" />
+            <Setter Property="MinimumHeightRequest" Value="40" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="VerticalOptions" Value="Center" />
         </Style>
-
-        <Style x:Key="StackStyle" TargetType="StackLayout">
-            <Setter Property="Orientation" Value="Horizontal" />
-            <Setter Property="Spacing" Value="15" />
-            <Setter Property="Padding" Value="10" />
-        </Style>
-
     </ContentPage.Resources>
 
-    <Grid BackgroundColor="{StaticResource Green1}">
-        <StackLayout Padding="20">
-            <!-- Header Label -->
-            <Label Text="Manage Users" 
-                   FontSize="28" 
-                   FontAttributes="Bold" 
-                   TextColor="White" 
-                   HorizontalOptions="Center" 
-                   Margin="0,20" />
+    <Grid BackgroundColor="{StaticResource Background}">
+        <VerticalStackLayout Padding="20" Spacing="14" MaximumWidthRequest="860" HorizontalOptions="Center">
+            <Border Style="{StaticResource HeroBanner}">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Manage users" FontFamily="PoppinsSemiBold" FontSize="24" TextColor="White" />
+                    <Label Text="Accounts stored on this device. Tap a user for details." TextColor="White" FontSize="13" />
+                </VerticalStackLayout>
+            </Border>
 
-            <!-- Collection View for Users -->
-            <CollectionView x:Name="UserCollectionView" 
-                            SelectionMode="Single" 
-                            SelectionChanged="OnUserSelected" 
-                            
-                            Margin="0,20">
+            <CollectionView x:Name="UserCollectionView"
+                            SelectionMode="Single"
+                            SelectionChanged="OnUserSelected">
+                <CollectionView.EmptyView>
+                    <Label Text="No users found." Style="{StaticResource Caption}" HorizontalOptions="Center" Margin="0,24" />
+                </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <StackLayout Style="{StaticResource StackStyle}">
-                            <!-- Username and Email -->
-                            <Label Text="{Binding Username}" Style="{StaticResource AdminLabelStyle}" />
-                            <Label Text="{Binding Email}" Style="{StaticResource AdminLabelStyle}" />
-
-                            <!-- Delete Button -->
-                            <Button Text="Delete" Clicked="OnDeleteUserClicked" Style="{StaticResource DeleteButtonStyle}" />
-                        </StackLayout>
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,10" Padding="14">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding Username}" Style="{StaticResource SectionTitle}" />
+                                    <Label Text="{Binding Email}" Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                                <Button Grid.Column="1" Text="Delete" Clicked="OnDeleteUserClicked" Style="{StaticResource DeleteButtonStyle}" />
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </StackLayout>
+        </VerticalStackLayout>
     </Grid>
 </ContentPage>

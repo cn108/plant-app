@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="FinalYearProject.MainPage"
              Title="Scan a Plant">
 
     <ScrollView>
-        <VerticalStackLayout Spacing="18" Padding="20" MaximumWidthRequest="720">
+        <VerticalStackLayout Spacing="18" Padding="20" MaximumWidthRequest="720" HorizontalOptions="Center">
             <Border Style="{StaticResource HeroBanner}">
                 <VerticalStackLayout Spacing="4">
                     <Label Text="Scan a plant" FontSize="28" FontAttributes="Bold" TextColor="White" />

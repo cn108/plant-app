@@ -102,6 +102,7 @@ namespace FinalYearProject
                     TaskDate = DateTime.Now,
                     DueDate = DateTime.Today.AddDays(1)
                 });
+
             }
         }
 
@@ -213,6 +214,33 @@ namespace FinalYearProject
             lock (DatabaseLock)
             {
                 _connection.Delete<PlantCareTask>(taskId);
+            }
+        }
+
+        /// <summary>Completes a task; recurring plant watering is rescheduled by the plant's interval.</summary>
+        public PlantCareTask? CompletePlantCareTask(PlantCareTask task)
+        {
+            ArgumentNullException.ThrowIfNull(task);
+            lock (DatabaseLock)
+            {
+                _connection.Delete<PlantCareTask>(task.TaskId);
+                var plant = task.PlantId > 0 ? _connection.Find<DBPlants>(task.PlantId) : null;
+                if (plant is null)
+                {
+                    return null;
+                }
+
+                var next = new PlantCareTask
+                {
+                    UserId = plant.UserId,
+                    PlantId = plant.PId,
+                    PlantName = plant.PlantName ?? string.Empty,
+                    TaskDescription = $"Water the plant ({plant.WaterPerLiters} L).",
+                    TaskDate = DateTime.Now,
+                    DueDate = DateTime.Today.AddDays(Math.Max(1, plant.WateringIntervalDays))
+                };
+                _connection.Insert(next);
+                return next;
             }
         }
     }

@@ -11,6 +11,7 @@ namespace FinalYearProject
     {
         public string ReplySummary => Replies.Count switch { 0 => "No replies yet", 1 => "1 reply", _ => $"{Replies.Count} replies" };
         public string LatestReply => Replies.Count == 0 ? string.Empty : $"{Replies[^1].Username}: {Replies[^1].Text}";
+        public string Initial => string.IsNullOrWhiteSpace(Username) ? "?" : char.ToUpperInvariant(Username[0]).ToString();
         public bool HasReplies => Replies.Count > 0;
     }
 
@@ -118,7 +119,6 @@ namespace FinalYearProject
 
         public static async Task<ApiResult<IReadOnlyList<PlantMatch>>> IdentifyAsync(byte[] image, string fileName, string contentType)
         {
-            if (!IsSignedIn) return new(null, "Sign in to use server identification.", true);
             try
             {
                 using var content = new MultipartFormDataContent();
@@ -127,11 +127,10 @@ namespace FinalYearProject
                 content.Add(file, "image", string.IsNullOrWhiteSpace(fileName) ? "plant.jpg" : fileName);
 
                 using var request = new HttpRequestMessage(HttpMethod.Post, BaseUrl + "/api/identify") { Content = content };
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", Token);
                 using var response = await Http.SendAsync(request);
 
                 if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
-                    return new(null, "Server identification is not configured.", true);
+                    return new(null, "Identification is not configured on the server.", false);
                 if (!response.IsSuccessStatusCode)
                     return new(null, "Identification failed on the server.", false);
 

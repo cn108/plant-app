@@ -8,83 +8,121 @@ namespace FinalYearProject
         public WelcomePage()
         {
             Title = "Welcome";
-            Content = new VerticalStackLayout
+            NavigationPage.SetHasNavigationBar(this, false);
+
+            var signIn = new Button
             {
-                Padding = 28,
-                Spacing = 18,
-                VerticalOptions = LayoutOptions.Center,
+                Text = "Sign in",
+                BackgroundColor = Colors.White,
+                TextColor = UI.Color("Green1"),
+                MaximumWidthRequest = 360,
+                HorizontalOptions = LayoutOptions.Fill
+            };
+            signIn.Clicked += async (_, _) => await Navigation.PushAsync(new LoginPage());
+
+            var register = new Button
+            {
+                Text = "Create an account",
+                BackgroundColor = Colors.Transparent,
+                TextColor = Colors.White,
+                BorderColor = Colors.White,
+                BorderWidth = 1.5,
+                MaximumWidthRequest = 360,
+                HorizontalOptions = LayoutOptions.Fill
+            };
+            register.Clicked += async (_, _) => await Navigation.PushAsync(new RegistrationPage());
+
+            Content = new Grid
+            {
+                Background = new LinearGradientBrush(
+                    new GradientStopCollection
+                    {
+                        new GradientStop(UI.Color("Green1"), 0f),
+                        new GradientStop(UI.Color("Green3"), 0.7f),
+                        new GradientStop(UI.Color("Green4"), 1f)
+                    }, new Point(0, 0), new Point(1, 1)),
                 Children =
                 {
-                    new Label
+                    new VerticalStackLayout
                     {
-                        Text = "Plant Companion",
-                        FontSize = 32,
-                        FontAttributes = FontAttributes.Bold,
-                        TextColor = Color.FromArgb("#164F2C"),
-                        HorizontalTextAlignment = TextAlignment.Center
-                    },
-                    new Label
-                    {
-                        Text = "Identify plants, plan crop rotations, and keep track of plant care.",
-                        FontSize = 17,
-                        HorizontalTextAlignment = TextAlignment.Center
-                    },
-                    CreateButton("Sign in", async () =>
-                        await Navigation.PushAsync(new LoginPage())),
-                    CreateButton("Create an account", async () =>
-                        await Navigation.PushAsync(new RegistrationPage()))
+                        Padding = 32,
+                        Spacing = 14,
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Center,
+                        Children =
+                        {
+                            new Border
+                            {
+                                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 48 },
+                                StrokeThickness = 0,
+                                BackgroundColor = Color.FromRgba(255, 255, 255, 40),
+                                WidthRequest = 96,
+                                HeightRequest = 96,
+                                HorizontalOptions = LayoutOptions.Center,
+                                Content = new Label
+                                {
+                                    Text = Icons.Eco,
+                                    FontFamily = Icons.Font,
+                                    FontSize = 54,
+                                    TextColor = Colors.White,
+                                    HorizontalOptions = LayoutOptions.Center,
+                                    VerticalOptions = LayoutOptions.Center
+                                }
+                            },
+                            new Label { Text = "Plant Companion", FontFamily = "PoppinsSemiBold", FontSize = 34, TextColor = Colors.White, HorizontalTextAlignment = TextAlignment.Center },
+                            new Label
+                            {
+                                Text = "Identify plants, plan your beds and never miss a watering.",
+                                FontSize = 16,
+                                TextColor = Colors.White,
+                                HorizontalTextAlignment = TextAlignment.Center,
+                                MaximumWidthRequest = 420
+                            },
+                            new BoxView { HeightRequest = 12, Color = Colors.Transparent },
+                            signIn,
+                            register
+                        }
+                    }
                 }
             };
-        }
-
-        private static Button CreateButton(string text, Func<Task> action)
-        {
-            var button = new Button
-            {
-                Text = text,
-                BackgroundColor = Color.FromArgb("#1F693C"),
-                TextColor = Colors.White,
-                CornerRadius = 10
-            };
-            button.Clicked += async (_, _) => await action();
-            return button;
         }
     }
 
     public sealed class RegistrationPage : ContentPage
     {
-        private readonly Entry _usernameEntry = new() { Placeholder = "Name", ReturnType = ReturnType.Next };
-        private readonly Entry _emailEntry = new() { Placeholder = "Email", Keyboard = Keyboard.Email, ReturnType = ReturnType.Next };
-        private readonly Entry _passwordEntry = new() { Placeholder = "Password (at least 8 characters)", IsPassword = true, ReturnType = ReturnType.Done };
-        private readonly Label _statusLabel = new() { TextColor = Colors.DarkRed };
+        private readonly Entry _usernameEntry = UI.StyledEntry("Name");
+        private readonly Entry _emailEntry = UI.StyledEntry("Email", Keyboard.Email);
+        private readonly Entry _passwordEntry = UI.StyledEntry("Password (at least 8 characters)", password: true);
+        private readonly Label _statusLabel = new() { TextColor = Colors.DarkRed, IsVisible = false };
+        private readonly Button _registerButton = new() { Text = "Create account" };
 
         public RegistrationPage()
         {
             Title = "Create account";
-            Content = new ScrollView
+            _registerButton.Clicked += async (_, _) => await RegisterAsync();
+            _passwordEntry.Completed += async (_, _) => await RegisterAsync();
+
+            var showPassword = new CheckBox { Color = UI.Color("Green3") };
+            showPassword.CheckedChanged += (_, e) => _passwordEntry.IsPassword = !e.Value;
+            var showRow = new HorizontalStackLayout
             {
-                Content = new VerticalStackLayout
-                {
-                    Padding = 24,
-                    Spacing = 14,
-                    VerticalOptions = LayoutOptions.Center,
-                    Children =
-                    {
-                        new Label { Text = "Create your account", FontSize = 28, FontAttributes = FontAttributes.Bold },
-                        _usernameEntry,
-                        _emailEntry,
-                        _passwordEntry,
-                        _statusLabel,
-                        new Button
-                        {
-                            Text = "Register",
-                            BackgroundColor = Color.FromArgb("#1F693C"),
-                            TextColor = Colors.White,
-                            Command = new Command(async () => await RegisterAsync())
-                        }
-                    }
-                }
+                Spacing = 4,
+                Children = { showPassword, new Label { Text = "Show password", VerticalOptions = LayoutOptions.Center } }
             };
+
+            var form = new VerticalStackLayout
+            {
+                Spacing = 12,
+                Children = { _usernameEntry, _emailEntry, _passwordEntry, showRow, _statusLabel, _registerButton }
+            };
+
+            Content = UI.Body(UI.Hero("Join Plant Companion", "Create an account to save plants, reminders and forum posts.", Icons.Person), UI.Card(form, 20));
+        }
+
+        private void ShowError(string message)
+        {
+            _statusLabel.Text = message;
+            _statusLabel.IsVisible = true;
         }
 
         private async Task RegisterAsync()
@@ -97,7 +135,7 @@ namespace FinalYearProject
                 string.IsNullOrWhiteSpace(email) ||
                 string.IsNullOrWhiteSpace(password))
             {
-                _statusLabel.Text = "Name, email, and password are required.";
+                ShowError("Name, email, and password are required.");
                 return;
             }
 
@@ -107,35 +145,32 @@ namespace FinalYearProject
             }
             catch (FormatException)
             {
-                _statusLabel.Text = "Enter a valid email address.";
+                ShowError("Enter a valid email address.");
                 return;
             }
 
             if (password.Length < 8)
             {
-                _statusLabel.Text = "Choose a password with at least 8 characters.";
+                ShowError("Choose a password with at least 8 characters.");
                 return;
             }
 
-            var online = await ApiClient.RegisterAsync(username, email, password);
-            if (online.Ok && online.Value is not null)
-            {
-                App.SetCurrentUser(online.Value.UserId, username);
-                Preferences.Set("user_id", online.Value.UserId);
-                Preferences.Set("user_email", email);
-                Preferences.Set("user_username", username);
-                Application.Current!.MainPage = new AppShell();
-                return;
-            }
-
-            if (!online.Unreachable)
-            {
-                _statusLabel.Text = online.Error ?? "Unable to create the account.";
-                return;
-            }
-
+            _registerButton.IsEnabled = false;
             try
             {
+                var online = await ApiClient.RegisterAsync(username, email, password);
+                if (online.Ok && online.Value is not null)
+                {
+                    SignIn(online.Value.UserId, email, username);
+                    return;
+                }
+
+                if (!online.Unreachable)
+                {
+                    ShowError(online.Error ?? "Unable to create the account.");
+                    return;
+                }
+
                 var user = new DBUsers
                 {
                     Username = username,
@@ -143,43 +178,121 @@ namespace FinalYearProject
                     Password = BCrypt.Net.BCrypt.HashPassword(password)
                 };
                 App.Database.AddUser(user);
-                App.SetCurrentUser(user.UserId, username);
-                Preferences.Set("user_id", user.UserId);
-                Preferences.Set("user_email", user.Email);
-                Preferences.Set("user_username", username);
-                Application.Current!.MainPage = new AppShell();
+                SignIn(user.UserId, user.Email, username);
             }
             catch (InvalidOperationException)
             {
-                _statusLabel.Text = "An account with this email already exists.";
+                ShowError("An account with this email already exists.");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Account registration failed: {ex}");
-                _statusLabel.Text = "Unable to create the account right now. Please try again.";
+                ShowError("Unable to create the account right now. Please try again.");
             }
+            finally
+            {
+                _registerButton.IsEnabled = true;
+            }
+        }
+
+        private static void SignIn(int userId, string email, string username)
+        {
+            App.SetCurrentUser(userId, username);
+            Preferences.Set("user_id", userId);
+            Preferences.Set("user_email", email);
+            Preferences.Set("user_username", username);
+            Application.Current!.MainPage = new AppShell();
         }
     }
 
     public sealed class WeatherPage : ContentPage
     {
-        private readonly Label _weatherLabel = new() { Text = "Loading current weather...", FontSize = 22 };
+        private static readonly (string Name, double Lat, double Lon)[] Cities =
+        {
+            ("London", 51.5074, -0.1278), ("Lagos", 6.5244, 3.3792), ("Abuja", 9.0765, 7.3986),
+            ("New York", 40.7128, -74.0060), ("Nairobi", -1.2921, 36.8219), ("Mumbai", 19.0760, 72.8777),
+            ("Sydney", -33.8688, 151.2093), ("Toronto", 43.6532, -79.3832)
+        };
+
+        private readonly Picker _cityPicker = new() { Title = "Choose a city" };
+        private readonly Label _temperature = new() { FontFamily = "PoppinsSemiBold", FontSize = 56, TextColor = Colors.White };
+        private readonly Label _summary = new() { TextColor = Colors.White, FontSize = 14 };
+        private readonly Label _humidity = new() { FontFamily = "PoppinsSemiBold", FontSize = 18 };
+        private readonly Label _wind = new() { FontFamily = "PoppinsSemiBold", FontSize = 18 };
+        private readonly Label _rain = new() { FontFamily = "PoppinsSemiBold", FontSize = 18 };
+        private readonly Label _advice = new() { LineBreakMode = LineBreakMode.WordWrap };
+        private readonly ActivityIndicator _busy = new() { Color = Colors.White };
+        private string _place = Cities[0].Name;
+        private double _lat = Cities[0].Lat;
+        private double _lon = Cities[0].Lon;
 
         public WeatherPage()
         {
             Title = "Weather";
-            Content = new VerticalStackLayout
+            _cityPicker.ItemsSource = Cities.Select(c => c.Name).ToList();
+            _cityPicker.SelectedIndex = Preferences.Get("weather_city", 0) is var i && i >= 0 && i < Cities.Length ? i : 0;
+            ApplyCity();
+            _cityPicker.SelectedIndexChanged += async (_, _) =>
             {
-                Padding = 24,
-                Spacing = 16,
-                Children =
+                if (_cityPicker.SelectedIndex < 0) return;
+                Preferences.Set("weather_city", _cityPicker.SelectedIndex);
+                ApplyCity();
+                await LoadWeatherAsync();
+            };
+
+            var hero = new Border
+            {
+                Style = UI.Style("HeroBanner"),
+                Content = new VerticalStackLayout
                 {
-                    new Label { Text = "Current weather", FontSize = 28, FontAttributes = FontAttributes.Bold },
-                    new Label { Text = "London, United Kingdom", FontSize = 16 },
-                    _weatherLabel,
-                    new Button { Text = "Refresh", Command = new Command(async () => await LoadWeatherAsync()) }
+                    Spacing = 2,
+                    Children =
+                    {
+                        new Label { Text = "Current weather", TextColor = Colors.White, FontSize = 13 },
+                        _temperature,
+                        _summary,
+                        _busy
+                    }
                 }
             };
+
+            Border Stat(string glyph, string caption, Label value)
+            {
+                return UI.Card(new VerticalStackLayout
+                {
+                    Spacing = 4,
+                    HorizontalOptions = LayoutOptions.Center,
+                    Children =
+                    {
+                        new Label { Text = glyph, FontFamily = Icons.Font, FontSize = 26, TextColor = UI.Color("Green4"), HorizontalOptions = LayoutOptions.Center },
+                        value,
+                        UI.Text(caption, "Caption")
+                    }
+                }, 12);
+            }
+
+            var stats = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Star) }, ColumnSpacing = 10 };
+            stats.Add(Stat(Icons.Water, "Humidity", _humidity), 0);
+            stats.Add(Stat(Icons.Cloud, "Wind", _wind), 1);
+            stats.Add(Stat(Icons.Thermo, "Rain", _rain), 2);
+
+            var adviceCard = UI.Card(new VerticalStackLayout
+            {
+                Spacing = 6,
+                Children = { new Label { Text = "Gardening advice", Style = UI.Style("SectionTitle") }, _advice }
+            });
+
+            var locate = UI.Secondary("Use my location", UseMyLocationAsync);
+            var refresh = UI.Secondary("Refresh", LoadWeatherAsync);
+
+            Content = UI.Body(UI.Hero("Weather", "Plan your watering with live conditions.", Icons.Sun),
+                _cityPicker, hero, stats, adviceCard, locate, refresh);
+        }
+
+        private void ApplyCity()
+        {
+            var city = Cities[Math.Max(0, _cityPicker.SelectedIndex)];
+            (_place, _lat, _lon) = city;
         }
 
         protected override async void OnAppearing()
@@ -188,141 +301,250 @@ namespace FinalYearProject
             await LoadWeatherAsync();
         }
 
-        private async Task LoadWeatherAsync()
+        private async Task UseMyLocationAsync()
         {
-            _weatherLabel.Text = "Loading current weather...";
             try
             {
-                var weather = await new WeatherService().GetWeatherAsync(51.5074, -0.1278);
-                _weatherLabel.Text = $"Temperature: {weather.Temperature:0.#} °C";
+                var location = await Geolocation.Default.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Low, TimeSpan.FromSeconds(8)));
+                if (location is null)
+                {
+                    await DisplayAlert("Location", "Your location could not be determined. Choose a city instead.", "OK");
+                    return;
+                }
+
+                (_place, _lat, _lon) = ("Your location", location.Latitude, location.Longitude);
+                await LoadWeatherAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Location lookup failed: {ex}");
+                await DisplayAlert("Location", "Location is unavailable or permission was denied. Choose a city instead.", "OK");
+            }
+        }
+
+        private async Task LoadWeatherAsync()
+        {
+            _busy.IsRunning = true;
+            _summary.Text = _place;
+            try
+            {
+                var weather = await new WeatherService().GetWeatherAsync(_lat, _lon);
+                _temperature.Text = $"{weather.Temperature:0.#} °C";
+                _humidity.Text = weather.Humidity is { } h ? $"{h:0}%" : "–";
+                _wind.Text = weather.WindKph is { } w ? $"{w:0} km/h" : "–";
+                _rain.Text = weather.RainMm is { } r ? $"{r:0.#} mm" : "–";
+                _advice.Text = weather.Advice;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Loading current weather failed: {ex}");
-                _weatherLabel.Text = "Weather is unavailable. Check your connection and try again.";
+                _temperature.Text = "--";
+                _advice.Text = "Weather is unavailable. Check your connection and try again.";
             }
-        }
-    }
-
-    public sealed class VegetablesPage : ContentPage
-    {
-        private static readonly string[] Vegetables =
-        {
-            "Beans", "Broccoli", "Cabbage", "Carrots", "Cucumber", "Lettuce",
-            "Onions", "Peppers", "Spinach", "Tomatoes"
-        };
-
-        public VegetablesPage()
-        {
-            Title = "Vegetables";
-            Content = new CollectionView
+            finally
             {
-                ItemsSource = Vegetables,
-                ItemTemplate = new DataTemplate(() =>
-                {
-                    var label = new Label
-                    {
-                        Padding = new Thickness(16, 12),
-                        FontSize = 18
-                    };
-                    label.SetBinding(Label.TextProperty, ".");
-                    return label;
-                })
-            };
+                _busy.IsRunning = false;
+            }
         }
     }
 
     public sealed class ViewPlantsPage : ContentPage
     {
-        private readonly PlantAppDatabase _database = new();
-        private readonly CollectionView _plants = new();
+        private readonly VerticalStackLayout _list = new() { Spacing = 12 };
 
         public ViewPlantsPage()
         {
-            Title = "My plants";
-            _plants.ItemTemplate = new DataTemplate(() =>
-            {
-                var name = new Label { FontSize = 18, FontAttributes = FontAttributes.Bold };
-                name.SetBinding(Label.TextProperty, nameof(DBPlants.PlantName));
-                var detail = new Label { TextColor = Colors.Gray };
-                detail.SetBinding(Label.TextProperty, nameof(DBPlants.Season));
-                return new VerticalStackLayout
-                {
-                    Padding = 14,
-                    Children = { name, detail }
-                };
-            });
-            Content = _plants;
+            Title = "View Added Plants";
+            var add = new Button { Text = "Add a plant" };
+            add.Clicked += async (_, _) => await UI.Push(new AddPlantPage());
+            Content = UI.Body(UI.Hero("My plants", "Everything you are growing, with the next watering date.", Icons.Eco), add, _list);
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            _plants.ItemsSource = _database.GetPlantsByUser(App.CurrentUserId);
+            Render();
+        }
+
+        private void Render()
+        {
+            _list.Children.Clear();
+            var plants = App.Database.GetPlantsByUser(App.CurrentUserId);
+            if (plants.Count == 0)
+            {
+                _list.Add(UI.Empty(Icons.Eco, "You have not added any plants yet.", "Add your first plant", () => UI.Push(new AddPlantPage())));
+                return;
+            }
+
+            var tasks = App.Database.GetPlantCareTasksByUser(App.CurrentUserId);
+            foreach (var plant in plants)
+            {
+                var next = tasks.Where(t => t.PlantId == plant.PId).OrderBy(t => t.DueDate).FirstOrDefault();
+                View thumb = plant.HasImage
+                    ? new Border
+                    {
+                        StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 14 },
+                        StrokeThickness = 0,
+                        WidthRequest = 64,
+                        HeightRequest = 64,
+                        Content = new Image { Source = ImageSource.FromFile(plant.ImagePath), Aspect = Aspect.AspectFill }
+                    }
+                    : UI.Badge(Icons.Eco, "Green3", 64);
+
+                var delete = new Button
+                {
+                    Text = Icons.Close,
+                    BackgroundColor = Colors.Transparent,
+                    TextColor = UI.Color("Danger"),
+                    FontFamily = Icons.Font,
+                    FontSize = 22,
+                    Padding = 0,
+                    MinimumHeightRequest = 40,
+                    MinimumWidthRequest = 40,
+                    VerticalOptions = LayoutOptions.Center
+                };
+                var captured = plant;
+                delete.Clicked += async (_, _) =>
+                {
+                    if (await DisplayAlert("Remove plant", $"Remove {captured.PlantName} and its reminders?", "Remove", "Cancel"))
+                    {
+                        App.Database.DeletePlant(captured.PId);
+                        Render();
+                    }
+                };
+
+                var row = new Grid
+                {
+                    ColumnDefinitions = { new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) },
+                    ColumnSpacing = 14
+                };
+                row.Add(thumb, 0);
+                row.Add(new VerticalStackLayout
+                {
+                    VerticalOptions = LayoutOptions.Center,
+                    Spacing = 2,
+                    Children =
+                    {
+                        new Label { Text = plant.PlantName, Style = UI.Style("SectionTitle") },
+                        UI.Text(plant.Summary, "Caption"),
+                        new Label
+                        {
+                            Text = next is null ? "No watering scheduled" : $"Next watering: {UI.Pretty(next.DueDate)}",
+                            FontSize = 13,
+                            FontFamily = "PoppinsSemiBold",
+                            TextColor = next is not null && next.DueDate.Date < DateTime.Today ? UI.Color("Danger") : UI.Color("Green3")
+                        }
+                    }
+                }, 1);
+                row.Add(delete, 2);
+                _list.Add(UI.Card(row, 14));
+            }
         }
     }
 
     public sealed class PlantCareTipsPage : ContentPage
     {
+        private static readonly (string Glyph, string Title, string Body)[] Tips =
+        {
+            (Icons.Water, "Water smartly", "Check the soil with a finger before watering and water at the base. Waterlogged roots are the most common cause of plant death."),
+            (Icons.Sun, "Right light, right place", "Match each plant to its light needs and rotate indoor pots a quarter turn weekly for even growth."),
+            (Icons.Spa, "Good drainage", "Use pots with drainage holes and empty standing water from saucers after watering."),
+            (Icons.Eco, "Prune and inspect", "Remove dead leaves and check under leaves regularly for pests such as aphids and spider mites."),
+            (Icons.Grass, "Feed in season", "Fertilise during the active growing season only and follow the product dose; more is not better."),
+            (Icons.Rotate, "Rotate your crops", "Avoid growing the same plant family in the same bed two years running to keep soil healthy."),
+            (Icons.Thermo, "Watch the weather", "Skip watering after rain, water early on hot days and protect tender plants from frost.")
+        };
+
         public PlantCareTipsPage()
         {
-            Title = "Plant care tips";
-            Content = new ScrollView
+            Title = "Plant Care Tips";
+            var list = new VerticalStackLayout { Spacing = 12 };
+            foreach (var (glyph, title, body) in Tips)
             {
-                Content = new VerticalStackLayout
+                var row = new Grid
                 {
-                    Padding = 24,
-                    Spacing = 14,
-                    Children =
-                    {
-                        new Label { Text = "Plant care tips", FontSize = 28, FontAttributes = FontAttributes.Bold },
-                        Tip("Water at soil level and check moisture before watering again; many plants are harmed by waterlogged soil."),
-                        Tip("Match each plant to its light needs. Rotate indoor pots periodically for even growth."),
-                        Tip("Use pots with drainage holes and empty standing water from saucers."),
-                        Tip("Remove dead leaves and check regularly for pests, especially beneath leaves."),
-                        Tip("Feed plants only during their active growing season and follow the product instructions.")
-                    }
-                }
-            };
-        }
+                    ColumnDefinitions = { new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Star) },
+                    ColumnSpacing = 14
+                };
+                row.Add(UI.Badge(glyph, "Green3"), 0);
+                row.Add(new VerticalStackLayout
+                {
+                    Spacing = 3,
+                    Children = { new Label { Text = title, Style = UI.Style("SectionTitle") }, new Label { Text = body, FontSize = 14, LineBreakMode = LineBreakMode.WordWrap } }
+                }, 1);
+                list.Add(UI.Card(row, 14));
+            }
 
-        private static Label Tip(string text) => new()
-        {
-            Text = $"• {text}",
-            FontSize = 17,
-            LineBreakMode = LineBreakMode.WordWrap
-        };
+            Content = UI.Body(UI.Hero("Plant care tips", "Simple habits that keep plants thriving.", Icons.Tips), list);
+        }
     }
 
     public sealed class PlantCareTimelinePage : ContentPage
     {
-        private readonly PlantAppDatabase _database = new();
-        private readonly CollectionView _tasks = new();
+        private readonly VerticalStackLayout _list = new() { Spacing = 10 };
 
         public PlantCareTimelinePage()
         {
-            Title = "Plant care timeline";
-            _tasks.ItemTemplate = new DataTemplate(() =>
-            {
-                var plant = new Label { FontAttributes = FontAttributes.Bold };
-                plant.SetBinding(Label.TextProperty, nameof(PlantCareTask.PlantName));
-                var description = new Label();
-                description.SetBinding(Label.TextProperty, nameof(PlantCareTask.TaskDescription));
-                var dueDate = new Label { TextColor = Colors.Gray };
-                dueDate.SetBinding(Label.TextProperty, nameof(PlantCareTask.DueDate), stringFormat: "Due {0:dd MMM yyyy}");
-                return new VerticalStackLayout
-                {
-                    Padding = 14,
-                    Children = { plant, description, dueDate }
-                };
-            });
-            Content = _tasks;
+            Title = "Plant Care Timeline";
+            Content = UI.Body(UI.Hero("Care timeline", "Overdue, today and upcoming tasks in one place.", Icons.Timeline), _list);
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            _tasks.ItemsSource = _database.GetPlantCareTasksByUser(App.CurrentUserId);
+            Render();
+        }
+
+        private void Render()
+        {
+            _list.Children.Clear();
+            var tasks = App.Database.GetPlantCareTasksByUser(App.CurrentUserId);
+            if (tasks.Count == 0)
+            {
+                _list.Add(UI.Empty(Icons.Timeline, "No care tasks yet. Add a plant and its watering schedule will appear here.", "Add a plant", () => UI.Push(new AddPlantPage())));
+                return;
+            }
+
+            AddGroup("Overdue", tasks.Where(t => t.DueDate.Date < DateTime.Today), "Danger");
+            AddGroup("Today", tasks.Where(t => t.DueDate.Date == DateTime.Today), "Green3");
+            AddGroup("Upcoming", tasks.Where(t => t.DueDate.Date > DateTime.Today), "Green4");
+        }
+
+        private void AddGroup(string heading, IEnumerable<PlantCareTask> tasks, string colorKey)
+        {
+            var items = tasks.OrderBy(t => t.DueDate).ToList();
+            if (items.Count == 0) return;
+
+            _list.Add(new Label { Text = $"{heading} ({items.Count})", Style = UI.Style("SectionTitle"), TextColor = UI.Color(colorKey), Margin = new Thickness(0, 6, 0, 0) });
+            foreach (var task in items)
+            {
+                var done = new Button { Text = "Done", HeightRequest = 40, Padding = new Thickness(16, 0), VerticalOptions = LayoutOptions.Center };
+                var captured = task;
+                done.Clicked += (_, _) =>
+                {
+                    App.Database.CompletePlantCareTask(captured);
+                    Render();
+                };
+
+                var row = new Grid
+                {
+                    ColumnDefinitions = { new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) },
+                    ColumnSpacing = 14
+                };
+                row.Add(UI.Badge(Icons.Water, colorKey == "Danger" ? "Danger" : "Green3", 40), 0);
+                row.Add(new VerticalStackLayout
+                {
+                    VerticalOptions = LayoutOptions.Center,
+                    Children =
+                    {
+                        new Label { Text = task.PlantName, FontFamily = "PoppinsSemiBold" },
+                        UI.Text(task.TaskDescription, "Caption"),
+                        new Label { Text = UI.Pretty(task.DueDate), FontSize = 12, TextColor = UI.Color(colorKey) }
+                    }
+                }, 1);
+                row.Add(done, 2);
+                _list.Add(UI.Card(row, 12));
+            }
         }
     }
 
@@ -331,26 +553,73 @@ namespace FinalYearProject
         public ProfilePage()
         {
             Title = "Profile";
-            Content = new VerticalStackLayout
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            var name = string.IsNullOrWhiteSpace(App.CurrentUserName) ? "Gardener" : App.CurrentUserName;
+            var plants = App.Database.GetPlantsByUser(App.CurrentUserId).Count;
+            var tasks = App.Database.GetPlantCareTasksByUser(App.CurrentUserId);
+            var due = tasks.Count(t => t.DueDate.Date <= DateTime.Today);
+
+            var avatar = new Border
             {
-                Padding = 24,
-                Spacing = 14,
-                Children =
+                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 40 },
+                StrokeThickness = 0,
+                BackgroundColor = UI.Color("Green3"),
+                WidthRequest = 80,
+                HeightRequest = 80,
+                HorizontalOptions = LayoutOptions.Center,
+                Content = new Label
                 {
-                    new Label { Text = "Your profile", FontSize = 28, FontAttributes = FontAttributes.Bold },
-                    new Label { Text = $"Name: {App.CurrentUserName}", FontSize = 18 },
-                    new Label { Text = $"Email: {Preferences.Get("user_email", string.Empty)}", FontSize = 18 },
-                    new Button
-                    {
-                        Text = "Sign out",
-                        Command = new Command(() =>
-                        {
-                            UserService.LogoutUser();
-                            Application.Current!.MainPage = new NavigationPage(new WelcomePage());
-                        })
-                    }
+                    Text = name[..1].ToUpperInvariant(),
+                    FontFamily = "PoppinsSemiBold",
+                    FontSize = 34,
+                    TextColor = Colors.White,
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
                 }
             };
+
+            View Stat(string value, string caption) => new VerticalStackLayout
+            {
+                HorizontalOptions = LayoutOptions.Center,
+                Children =
+                {
+                    new Label { Text = value, FontFamily = "PoppinsSemiBold", FontSize = 26, TextColor = UI.Color("Green3"), HorizontalOptions = LayoutOptions.Center },
+                    UI.Text(caption, "Caption")
+                }
+            };
+
+            var stats = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Star) } };
+            stats.Add(Stat(plants.ToString(), "Plants"), 0);
+            stats.Add(Stat(tasks.Count.ToString(), "Tasks"), 1);
+            stats.Add(Stat(due.ToString(), "Due now"), 2);
+
+            var signOut = new Button { Text = "Sign out", BackgroundColor = UI.Color("Danger") };
+            signOut.Clicked += async (_, _) =>
+            {
+                if (!await DisplayAlert("Sign out", "Sign out of Plant Companion?", "Sign out", "Cancel")) return;
+                UserService.LogoutUser();
+                Application.Current!.MainPage = new NavigationPage(new WelcomePage());
+            };
+
+            var identity = new VerticalStackLayout
+            {
+                Spacing = 6,
+                Children =
+                {
+                    avatar,
+                    new Label { Text = name, Style = UI.Style("PageTitle"), HorizontalOptions = LayoutOptions.Center },
+                    new Label { Text = Preferences.Get("user_email", string.Empty), TextColor = UI.Color("Muted"), HorizontalOptions = LayoutOptions.Center }
+                }
+            };
+
+            var privacy = UI.Secondary("Privacy policy", async () =>
+                await Launcher.Default.OpenAsync("https://github.com/cn108/plant-app/blob/main/PRIVACY.md"));
+
+            Content = UI.Body(UI.Hero("Your profile", "Account and garden summary.", Icons.Person), UI.Card(identity, 22), UI.Card(stats, 18), privacy, signOut);
         }
     }
 
@@ -360,17 +629,17 @@ namespace FinalYearProject
         {
             ArgumentNullException.ThrowIfNull(user);
             Title = "User details";
-            Content = new VerticalStackLayout
+            var info = new VerticalStackLayout
             {
-                Padding = 24,
-                Spacing = 12,
+                Spacing = 6,
                 Children =
                 {
-                    new Label { Text = user.Username ?? "User", FontSize = 26, FontAttributes = FontAttributes.Bold },
-                    new Label { Text = user.Email ?? "No email", FontSize = 18 },
-                    new Label { Text = $"Joined {user.CreatedAt:dd MMM yyyy}", FontSize = 15, TextColor = Colors.Gray }
+                    new Label { Text = user.Username ?? "User", Style = UI.Style("PageTitle") },
+                    new Label { Text = user.Email ?? "No email" },
+                    UI.Text($"Joined {user.CreatedAt:dd MMM yyyy}", "Caption")
                 }
             };
+            Content = UI.Body(UI.Hero("User details", "Account information.", Icons.Person), UI.Card(info, 20));
         }
     }
 }
