@@ -1,0 +1,35 @@
+name: .NET MAUI Windows
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Build Windows app
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install MAUI Windows workload
+        run: dotnet workload install maui-windows
+
+      - name: Restore Windows target
+        run: dotnet restore FinalYearProject.csproj -p:TargetFrameworks=net8.0-windows10.0.19041.0
+
+      - name: Build Windows target
+        run: dotnet build FinalYearProject.csproj --configuration Release --framework net8.0-windows10.0.19041.0 --no-restore -p:TargetFrameworks=net8.0-windows10.0.19041.0
