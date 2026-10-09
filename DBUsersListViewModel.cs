@@ -65,7 +65,9 @@ namespace FinalYearProject
             else
             {
                 FilteredUsers = new ObservableCollection<DBUsers>(
-                    AllUsers.Where(user => user.Username.ToLower().Contains(searchText.ToLower())));
+                    AllUsers.Where(user => user.Username?.Contains(
+                        searchText,
+                        StringComparison.OrdinalIgnoreCase) == true));
             }
             OnPropertyChanged(nameof(FilteredUsers));
         }

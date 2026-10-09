@@ -53,6 +53,17 @@ namespace FinalYearProject
             }
         }
 
+        private string _weatherMessage = "Loading current weather...";
+        public string WeatherMessage
+        {
+            get => _weatherMessage;
+            set
+            {
+                _weatherMessage = value;
+                OnPropertyChanged(nameof(WeatherMessage));
+            }
+        }
+
         private string _searchQuery;
         public string SearchQuery
         {
@@ -77,6 +88,7 @@ namespace FinalYearProject
             LoadCareTasks();
             LoadPlantCareTimeline();
             UserPlants = _database.GetPlantsByUser(App.CurrentUserId);
+            FilteredPlants = new ObservableCollection<DBPlants>(UserPlants);
 
             //predefinedPlants = _database.GetAllPlants(); // Example repository method
 
@@ -87,7 +99,13 @@ namespace FinalYearProject
             NavigateToWeatherCommand = new Command(NavigateToWeather);
             NavigateToFruitsCommand = new Command(NavigateToFruits);
             NavigateToVegetablesCommand = new Command(NavigateToVegetables);
-           
+            NavigateToChatCommand = new Command(NavigateToChat);
+            NavigateToCreateForumCommand = new Command(NavigateToCreateForum);
+            NavigateToCropRotationCommand = new Command(async () => await NavigateToCropRotation());
+            NavigateToPlantCareTipsCommand = new Command(NavigateToPlantCareTips);
+            NavigatedToProfileCommand = new Command(NavigateToProfile);
+            LogoutCommand = new Command(Logout);
+
             SearchCommand = new Command(SearchPlants);
             
             NavigateToViewPlantsCommand = new Command(NavigateToViewPlants);
@@ -96,7 +114,7 @@ namespace FinalYearProject
             MarkAsDoneCommand = new Command<PlantCareTask>(OnMarkAsDone);
             LoadReminders();
 
-            Task task = FetchWeatherData();
+            _ = FetchWeatherData();
         }
 
         //private void FilterPlants()
@@ -136,8 +154,25 @@ namespace FinalYearProject
 
         private void OnMarkAsDone(PlantCareTask task)
         {
+            if (task is null)
+            {
+                return;
+            }
+
+            _database.CompletePlantCareTask(task);
             Reminders.Remove(task);
-            _database.DeletePlantCareTask(task.TaskId);
+            CareTasks.Remove(task);
+            PlantCareTimeline.Remove(task);
+            var upcoming = _database.GetPlantCareTasksByUser(App.CurrentUserId);
+            foreach (var next in upcoming.Where(t => t.DueDate >= DateTime.Now && !Reminders.Any(r => r.TaskId == t.TaskId)))
+            {
+                Reminders.Add(next);
+            }
+            foreach (var next in upcoming.Where(t => !CareTasks.Any(r => r.TaskId == t.TaskId)))
+            {
+                CareTasks.Add(next);
+                PlantCareTimeline.Add(next);
+            }
         }
 
         private void LoadCareTasks()
@@ -159,20 +194,27 @@ namespace FinalYearProject
         private async Task FetchWeatherData()
         {
             IsFetchingWeather = true;
-
-            var weatherData = await _weatherService.GetWeatherAsync(51.5074, -0.1278); // Coordinates for London, UK
-            Temperature = weatherData.Temperature;
-
-            IsFetchingWeather = false;
+            try
+            {
+                var weatherData = await _weatherService.GetWeatherAsync(51.5074, -0.1278);
+                Temperature = weatherData.Temperature;
+                WeatherMessage = $"Current temperature: {Temperature:0.#} °C";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Loading dashboard weather failed: {ex}");
+                WeatherMessage = "Weather is unavailable. Check your connection.";
+            }
+            finally
+            {
+                IsFetchingWeather = false;
+            }
         }
 
         private async void Logout()
         {
-            // Clear the user's session or token if necessary
             UserService.LogoutUser();
-
-            // Navigate to the LoginPage
-            await Application.Current.MainPage.Navigation.PushAsync(new WelcomePage());
+            Application.Current!.MainPage = new NavigationPage(new WelcomePage());
         }
 
         private async void NavigateToWeather() { await Application.Current.MainPage.Navigation.PushAsync(new WeatherPage()); }
@@ -210,9 +252,8 @@ namespace FinalYearProject
 
         private void SearchPlants()
         {
-            // Implement search logic here
-            UserPlants = _database.SearchPlants(SearchQuery);
-            OnPropertyChanged(nameof(UserPlants));
+            FilteredPlants = _database.SearchPlants(SearchQuery);
+            OnPropertyChanged(nameof(FilteredPlants));
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

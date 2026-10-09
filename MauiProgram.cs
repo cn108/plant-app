@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui;
 
 namespace FinalYearProject
 {
@@ -6,18 +7,21 @@ namespace FinalYearProject
     {
         public static MauiApp CreateMauiApp()
         {
+            SQLitePCL.Batteries_V2.Init();
+
             var builder = MauiApp.CreateBuilder();
             builder
-                .UseMauiApp<App>()                
+                .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("CustomFont-Bold.ttf", "CustomFont-Bold");
-                    fonts.AddFont("CustomFont-Regular.ttf", "CustomFont-Regular");
+                    fonts.AddFont("Poppins-Regular.ttf", "Poppins");
+                    fonts.AddFont("Poppins-SemiBold.ttf", "PoppinsSemiBold");
+                    fonts.AddFont("MaterialIcons-Regular.ttf", "MaterialIcons");
                 });
 
 #if DEBUG
-    		builder.Logging.AddDebug();
-            builder.Services.AddSingleton<HttpClient>();
+            builder.Logging.AddDebug();
 #endif
 
 

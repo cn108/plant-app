@@ -15,5 +15,12 @@ namespace FinalYearProject
         public string? Season { get; set; }
         public int WaterPerLiters { get; set; } 
         public string? PlantImage { get; set; }
+        public int WateringIntervalDays { get; set; } = 7;
+
+        [Ignore]
+        public string Summary => $"{WaterPerLiters} L every {(WateringIntervalDays <= 0 ? 7 : WateringIntervalDays)} days · {Season}";
+
+        [Ignore]
+        public bool HasImage => !string.IsNullOrEmpty(ImagePath) && File.Exists(ImagePath);
     }
 }

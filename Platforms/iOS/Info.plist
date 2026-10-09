@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>LSRequiresIPhoneOS</key>
+  <true/>
+  <key>UIDeviceFamily</key>
+  <array><integer>1</integer><integer>2</integer></array>
+  <key>UISupportedInterfaceOrientations</key>
+  <array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>
+  <key>NSCameraUsageDescription</key>
+  <string>Take a photo of a plant to identify it.</string>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>Select a plant photo to identify it.</string>
+  <key>NSPhotoLibraryAddUsageDescription</key>
+  <string>Save plant photos to your photo library.</string>
+  <key>MinimumOSVersion</key>
+  <string>11.0</string>
+</dict>
+</plist>

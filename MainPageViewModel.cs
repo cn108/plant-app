@@ -1,45 +1,52 @@
-﻿using CommunityToolkit.Mvvm.Input; // Needed for AsyncRelayCommand
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace FinalYearProject
 {
     public partial class MainPageViewModel : ObservableObject
     {
         [ObservableProperty]
-        private string photo; // This will bind to the Image control in the XAML
+        private ImageSource? photo;
 
         [ObservableProperty]
-        private string outputLabel; // This will display the result from the model
+        private string? outputLabel = "Choose or take a photo to identify a plant.";
 
         [ObservableProperty]
-        private bool isRunning; // Activity indicator binding
+        private bool isRunning;
 
         public MainPageViewModel()
         {
-            PickPhotoCommand = new AsyncRelayCommand(PickPhotoAsync);
-            TakePhotoCommand = new AsyncRelayCommand(TakePhotoAsync);
+            PickPhotoCommand = new AsyncRelayCommand(PickPhotoAsync, () => !IsRunning);
+            TakePhotoCommand = new AsyncRelayCommand(TakePhotoAsync, () => !IsRunning);
         }
 
         public IAsyncRelayCommand PickPhotoCommand { get; }
         public IAsyncRelayCommand TakePhotoCommand { get; }
 
+        partial void OnIsRunningChanged(bool value)
+        {
+            PickPhotoCommand.NotifyCanExecuteChanged();
+            TakePhotoCommand.NotifyCanExecuteChanged();
+        }
+
         private async Task PickPhotoAsync()
         {
             try
             {
-                FileResult photoResult = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
+                var photoResult = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
                 {
                     Title = "Pick a picture"
                 });
 
-                if (photoResult != null)
+                if (photoResult is not null)
                 {
                     await ProcessPhotoAsync(photoResult);
                 }
             }
             catch (Exception ex)
             {
-                OutputLabel = $"Error: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"Picking a plant photo failed: {ex}");
+                OutputLabel = "Unable to open the photo picker. Check photo permissions and try again.";
             }
         }
 
@@ -47,60 +54,83 @@ namespace FinalYearProject
         {
             try
             {
-                FileResult photoResult = await MediaPicker.CapturePhotoAsync();
-                if (photoResult != null)
+                var photoResult = await MediaPicker.CapturePhotoAsync();
+                if (photoResult is not null)
                 {
                     await ProcessPhotoAsync(photoResult);
                 }
             }
             catch (Exception ex)
             {
-                OutputLabel = $"Error: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"Taking a plant photo failed: {ex}");
+                OutputLabel = "Unable to take a photo. Check camera permissions and try again.";
             }
         }
 
         private async Task ProcessPhotoAsync(FileResult photoResult)
         {
-            IsRunning = true; // Start activity indicator
+            IsRunning = true;
+            OutputLabel = "Analyzing photo...";
 
-            // Convert image to byte array for ML model
-            var stream = await photoResult.OpenReadAsync();
-            using (MemoryStream ms = new MemoryStream())
+            try
             {
-                await stream.CopyToAsync(ms);
-                byte[] imageBytes = ms.ToArray();
+                await using var stream = await photoResult.OpenReadAsync();
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                var imageBytes = memoryStream.ToArray();
+                Photo = ImageSource.FromStream(() => new MemoryStream(imageBytes, writable: false));
 
-                // Create single instance of sample data for model input
-                var sampleData = new MLModel1.ModelInput
+                var lines = await IdentifyAsync(imageBytes, photoResult.FileName);
+                if (lines is null)
                 {
-                    ImageSource = imageBytes
-                };
-
-                // Make a single prediction
-                var sortedScoresWithLabel = MLModel1.PredictAllLabels(sampleData);
-
-                // Sort the predictions and take the top 3
-                var top3Scores = sortedScoresWithLabel
-                    .OrderByDescending(kv => kv.Value)
-                    .Take(3);
-
-                // Create a formatted string to display the top 3 predictions
-                string output = "Top 3 Predictions:\n";
-                foreach (var score in top3Scores)
-                {
-                    output += $"{score.Key}: {score.Value:P2}\n";  // Format score as percentage
+                    return;
                 }
 
-                // Set the OutputLabel to display the top 3 predictions
-                OutputLabel = output;
-
-                // Bind the image to the UI
-                Photo = photoResult.FullPath;
+                OutputLabel = lines.Count == 0
+                    ? "No plant was recognised. Try a clear, close-up photo of a leaf or flower."
+                    : "Top matches:" + Environment.NewLine + string.Join(Environment.NewLine, lines);
             }
-
-            IsRunning = false; // Stop activity indicator
+            catch (PlantIdentificationException ex)
+            {
+                OutputLabel = ex.Message;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Plant identification failed: {ex}");
+                OutputLabel = "Unable to identify this photo. Try another image.";
+            }
+            finally
+            {
+                IsRunning = false;
+            }
         }
 
-    }
+        private static async Task<List<string>?> IdentifyAsync(byte[] imageBytes, string fileName)
+        {
+            if (File.Exists(Path.Combine(AppContext.BaseDirectory, "MLModel1.mlnet")))
+            {
+                var local = await Task.Run(() =>
+                    MLModel1.PredictAllLabels(new MLModel1.ModelInput { ImageSource = imageBytes })
+                        .Take(3)
+                        .Select(p => $"{p.Key}: {p.Value:P0}")
+                        .ToList());
+                return local;
+            }
 
+            var server = await ApiClient.IdentifyAsync(imageBytes, fileName, "image/jpeg");
+            if (server.Ok && server.Value is not null)
+            {
+                return server.Value
+                    .Select(m => string.IsNullOrWhiteSpace(m.CommonName)
+                        ? $"{m.ScientificName}: {m.Score:P0}"
+                        : $"{m.CommonName} ({m.ScientificName}): {m.Score:P0}")
+                    .ToList();
+            }
+
+            var message = server.Unreachable
+                ? "Can't reach the plant identification service. Check your connection and try again."
+                : "Plant identification is temporarily unavailable. Please try again later.";
+            throw new PlantIdentificationException(message);
+        }
+    }
 }

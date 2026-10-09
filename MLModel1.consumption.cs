@@ -9,6 +9,8 @@ namespace FinalYearProject
 {
     public partial class MLModel1
     {
+        private static readonly object PredictionLock = new();
+
         /// <summary>
         /// model input class for MLModel1.
         /// </summary>
@@ -77,8 +79,7 @@ namespace FinalYearProject
         /// <returns><seealso cref=" ModelOutput"/></returns>
         public static IOrderedEnumerable<KeyValuePair<string, float>> PredictAllLabels(ModelInput input)
         {
-            var predEngine = PredictEngine.Value;
-            var result = predEngine.Predict(input);
+            var result = Predict(input);
             return GetSortedScoresWithLabels(result);
         }
 
@@ -91,17 +92,16 @@ namespace FinalYearProject
         public static IOrderedEnumerable<KeyValuePair<string, float>> GetSortedScoresWithLabels(ModelOutput result)
         {
             var unlabeledScores = result.Score;
-            var labelNames = GetLabels(result);
+            var labelNames = GetLabels(result).ToArray();
 
-            Dictionary<string, float> labledScores = new Dictionary<string, float>();
-            for (int i = 0; i < labelNames.Count(); i++)
+            var labeledScores = new Dictionary<string, float>();
+            var scoreCount = Math.Min(labelNames.Length, unlabeledScores.Length);
+            for (int i = 0; i < scoreCount; i++)
             {
-                // Map the names to the predicted result score array
-                var labelName = labelNames.ElementAt(i);
-                labledScores.Add(labelName.ToString(), unlabeledScores[i]);
+                labeledScores[labelNames[i]] = unlabeledScores[i];
             }
 
-            return labledScores.OrderByDescending(c => c.Value);
+            return labeledScores.OrderByDescending(score => score.Value);
         }
 
         /// <summary>
@@ -134,7 +134,10 @@ namespace FinalYearProject
         public static ModelOutput Predict(ModelInput input)
         {
             var predEngine = PredictEngine.Value;
-            return predEngine.Predict(input);
+            lock (PredictionLock)
+            {
+                return predEngine.Predict(input);
+            }
         }
     }
 }

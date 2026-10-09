@@ -29,7 +29,7 @@ jobs:
         run: dotnet workload install maui-windows
 
       - name: Restore Windows target
-        run: dotnet restore FinalYearProject.csproj -p:TargetFrameworks=net8.0-windows10.0.19041.0
+        run: dotnet restore FinalYearProject.csproj -p:TargetFrameworks=net8.0-windows10.0.19041.0 -p:Platform=x64
 
       - name: Build Windows target
-        run: dotnet build FinalYearProject.csproj --configuration Release --framework net8.0-windows10.0.19041.0 --no-restore -p:TargetFrameworks=net8.0-windows10.0.19041.0
+        run: dotnet build FinalYearProject.csproj --configuration Release --no-restore -p:TargetFrameworks=net8.0-windows10.0.19041.0 -p:Platform=x64

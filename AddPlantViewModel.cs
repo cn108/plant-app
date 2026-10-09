@@ -1,18 +1,81 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Windows.Input;
-using Microsoft.Maui.Controls;
 using Microsoft.Maui.Media;
 
 namespace FinalYearProject
 {
     public class AddPlantViewModel : INotifyPropertyChanged
     {
-        private PlantAppDatabase _database;
-        public string PlantName { get; set; }
-        public string Season { get; set; }
-        public ImageSource PlantImage { get; set; }
+        private readonly PlantAppDatabase _database = new();
+        private string _plantName = string.Empty;
+        private string _season = string.Empty;
+        private ImageSource? _plantImage;
+        private string _waterPerLiters = string.Empty;
+        private string? _plantImagePath;
 
-        private string _waterPerLiters;
+        public string PlantName
+        {
+            get => _plantName;
+            set
+            {
+                _plantName = value;
+                OnPropertyChanged(nameof(PlantName));
+                if (PlantCatalog.Find(value) is { } match)
+                {
+                    Season = match.Season;
+                    WaterPerLiters = match.Litres.ToString();
+                    WateringIntervalDays = match.IntervalDays.ToString();
+                    Suggestion = $"Filled in from our guide: {match.Tip}";
+                }
+                else
+                {
+                    Suggestion = string.Empty;
+                }
+            }
+        }
+
+        private string _wateringIntervalDays = "7";
+        public string WateringIntervalDays
+        {
+            get => _wateringIntervalDays;
+            set
+            {
+                _wateringIntervalDays = value;
+                OnPropertyChanged(nameof(WateringIntervalDays));
+            }
+        }
+
+        private string _suggestion = string.Empty;
+        public string Suggestion
+        {
+            get => _suggestion;
+            private set
+            {
+                _suggestion = value;
+                OnPropertyChanged(nameof(Suggestion));
+            }
+        }
+
+        public string Season
+        {
+            get => _season;
+            set
+            {
+                _season = value;
+                OnPropertyChanged(nameof(Season));
+            }
+        }
+
+        public ImageSource? PlantImage
+        {
+            get => _plantImage;
+            private set
+            {
+                _plantImage = value;
+                OnPropertyChanged(nameof(PlantImage));
+            }
+        }
+
         public string WaterPerLiters
         {
             get => _waterPerLiters;
@@ -23,12 +86,10 @@ namespace FinalYearProject
             }
         }
 
-        // Define the PlantImagePath property
-        private string _plantImagePath;
-        public string PlantImagePath
+        public string? PlantImagePath
         {
             get => _plantImagePath;
-            set
+            private set
             {
                 _plantImagePath = value;
                 OnPropertyChanged(nameof(PlantImagePath));
@@ -41,68 +102,86 @@ namespace FinalYearProject
 
         public AddPlantViewModel()
         {
-            _database = new PlantAppDatabase();
-            SavePlantCommand = new Command(SavePlant);
-            UploadImageCommand = new Command(UploadImage);
-            CaptureImageCommand = new Command(CaptureImage);
+            SavePlantCommand = new Command(async () => await SavePlantAsync());
+            UploadImageCommand = new Command(async () => await SelectImageAsync(capture: false));
+            CaptureImageCommand = new Command(async () => await SelectImageAsync(capture: true));
         }
 
-        private async void CaptureImage()
+        private async Task SelectImageAsync(bool capture)
         {
-            var photo = await MediaPicker.CapturePhotoAsync();
-            if (photo != null)
+            try
             {
-                var stream = await photo.OpenReadAsync();
-                PlantImage = ImageSource.FromStream(() => stream);
-                PlantImagePath = photo.FullPath;  // Store the full path of the captured image
-                OnPropertyChanged(nameof(PlantImage));
-            }
-        }
-
-        private async void SavePlant()
-        {
-            if (int.TryParse(WaterPerLiters, out int waterPerLiters))
-            {
-                var newPlant = new DBPlants
+                var result = capture
+                    ? await MediaPicker.CapturePhotoAsync()
+                    : await MediaPicker.PickPhotoAsync();
+                if (result is null)
                 {
-                    PlantName = PlantName,
-                    Season = Season,
-                    WaterPerLiters = waterPerLiters,
-                    ImagePath = PlantImagePath, // Store the image path or convert to base64 string
-                    UserId = App.CurrentUserId // Ensure this is the logged-in user's ID
-                };
+                    return;
+                }
 
-                _database.AddPlant(newPlant);
-                // Navigate back to dashboard
-                await Application.Current.MainPage.Navigation.PopAsync();
+                await using var source = await result.OpenReadAsync();
+                using var memoryStream = new MemoryStream();
+                await source.CopyToAsync(memoryStream);
+                var imageBytes = memoryStream.ToArray();
+                var imagePath = Path.Combine(FileSystem.AppDataDirectory, $"{Guid.NewGuid():N}.image");
+                await File.WriteAllBytesAsync(imagePath, imageBytes);
+
+                PlantImagePath = imagePath;
+                PlantImage = ImageSource.FromStream(() => new MemoryStream(imageBytes, writable: false));
             }
-            else
+            catch (Exception ex)
             {
-                // Handle invalid input
-                await Application.Current.MainPage.DisplayAlert("Error", "Please enter a valid number for Water (Liters).", "OK");
+                System.Diagnostics.Debug.WriteLine($"Selecting a plant photo failed: {ex}");
+                await Application.Current!.MainPage!.DisplayAlert(
+                    "Photo unavailable",
+                    "Unable to select or save that photo. Check app permissions and try again.",
+                    "OK");
             }
         }
 
-        private async void UploadImage()
+        private async Task SavePlantAsync()
         {
-            var result = await MediaPicker.PickPhotoAsync();
-            if (result != null)
+            if (string.IsNullOrWhiteSpace(PlantName) ||
+                string.IsNullOrWhiteSpace(Season) ||
+                !int.TryParse(WaterPerLiters, out var waterPerLiters) ||
+                waterPerLiters <= 0 ||
+                !int.TryParse(WateringIntervalDays, out var interval) ||
+                interval is < 1 or > 60)
             {
-                // Get the full path of the image
-                var stream = await result.OpenReadAsync();
-                var imagePath = result.FullPath; // Get the full image path
+                await Application.Current!.MainPage!.DisplayAlert(
+                    "Check plant details",
+                    "Enter a plant name, a season, a positive water amount in litres, and a watering interval of 1-60 days.",
+                    "OK");
+                return;
+            }
 
-                // Display the image in the app
-                PlantImage = ImageSource.FromStream(() => stream);
-                OnPropertyChanged(nameof(PlantImage));
+            try
+            {
+                _database.AddPlant(new DBPlants
+                {
+                    PlantName = PlantName.Trim(),
+                    Season = Season.Trim(),
+                    WaterPerLiters = waterPerLiters,
+                    WateringIntervalDays = interval,
+                    ImagePath = PlantImagePath,
+                    UserId = App.CurrentUserId
+                });
 
-                // Save the full image path to the database
-                PlantImagePath = imagePath;
+                await Application.Current!.MainPage!.Navigation.PopAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Saving a plant failed: {ex}");
+                await Application.Current!.MainPage!.DisplayAlert(
+                    "Unable to save",
+                    "The plant could not be saved. Please try again.",
+                    "OK");
             }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
+
+        private void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
